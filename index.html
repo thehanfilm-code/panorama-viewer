@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>360° 파노라마 뷰어</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #0a0a0a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+    color: #fff;
+    overflow: hidden;
+  }
+  #container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  #drop-zone {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 48px 72px;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    min-width: 360px;
+  }
+  #drop-zone:hover,
+  #drop-zone.drag-over {
+    border-color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  #drop-zone h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  #drop-zone p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
+  }
+  #drop-zone .hint {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: 16px;
+  }
+  #drop-zone .icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.6;
+  }
+  #controls {
+    position: absolute;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    padding: 8px;
+    border-radius: 10px;
+    z-index: 10;
+  }
+  #controls.visible { display: flex; }
+  .btn {
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .btn:active { transform: scale(0.97); }
+  #file-input { display: none; }
+  #info {
+    position: absolute;
+    top: 20px; left: 20px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    display: none;
+    z-index: 10;
+    line-height: 1.6;
+  }
+  #info.visible { display: block; }
+  #height-control {
+    position: absolute;
+    top: 50%; right: 24px;
+    transform: translateY(-50%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    padding: 16px 12px;
+    border-radius: 10px;
+    z-index: 10;
+  }
+  #height-control.visible { display: flex; }
+  #height-control .label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  #height-slider {
+    -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
+    writing-mode: vertical-lr;
+    width: 8px;
+    height: 200px;
+    background: transparent;
+    cursor: pointer;
+  }
+  #height-slider::-webkit-slider-runnable-track {
+    width: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
+  #height-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: grab;
+    margin-left: -7px;
+  }
+  #height-value {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.9);
+    font-variant-numeric: tabular-nums;
+    min-width: 32px;
+    text-align: center;
+  }
+  #height-reset {
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+  }
+  #height-reset:hover { background: rgba(255, 255, 255, 0.18); }
+  #loading {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 32px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    font-size: 14px;
+    display: none;
+    z-index: 20;
+  }
+  #loading.visible { display: block; }
+  canvas { display: block; cursor: grab; }
+  canvas:active { cursor: grabbing; }
+</style>
+</head>
+<body>
+<div id="container"></div>
+
+<div id="drop-zone">
+  <div class="icon">🌐</div>
+  <h1>360° 파노라마 뷰어</h1>
+  <p>이미지를 드래그하거나 클릭해서 업로드</p>
+  <p class="hint">Equirectangular (2:1 비율) 이미지 권장 · JPG, PNG</p>
+</div>
+
+<div id="info">
+  드래그: 시점 회전 · 스크롤: 줌<br>
+  슬라이더 / ↑↓ : 시점 높이
+</div>
+
+<div id="loading">이미지 로딩 중...</div>
+
+<div id="height-control">
+  <span class="label">시점 높이</span>
+  <span id="height-value">0</span>
+  <input type="range" id="height-slider" min="-200" max="200" value="0" step="1">
+  <button id="height-reset">리셋</button>
+</div>
+
+<div id="controls">
+  <label class="btn" for="file-input">다른 이미지</label>
+  <button class="btn" id="reset-btn">시점 리셋</button>
+  <button class="btn" id="fullscreen-btn">전체화면</button>
+  <button class="btn" id="autorotate-btn">자동 회전</button>
+</div>
+
+<input type="file" id="file-input" accept="image/*">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  let scene, camera, renderer, sphere;
+  let isUserInteracting = false;
+  let onPointerDownMouseX = 0, onPointerDownMouseY = 0;
+  let lon = 0, onPointerDownLon = 0;
+  let lat = 0, onPointerDownLat = 0;
+  let phi = 0, theta = 0;
+  let fov = 75;
+  let autoRotate = false;
+  let cameraHeight = 0; // 구 내부에서 카메라의 Y 위치 (-200 ~ +200)
+
+  const container = document.getElementById('container');
+  const dropZone = document.getElementById('drop-zone');
+  const controls = document.getElementById('controls');
+  const info = document.getElementById('info');
+  const loading = document.getElementById('loading');
+  const fileInput = document.getElementById('file-input');
+  const fullscreenBtn = document.getElementById('fullscreen-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const autoRotateBtn = document.getElementById('autorotate-btn');
+  const heightControl = document.getElementById('height-control');
+  const heightSlider = document.getElementById('height-slider');
+  const heightValue = document.getElementById('height-value');
+  const heightReset = document.getElementById('height-reset');
+
+  function init() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 1, 1100);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    const geometry = new THREE.SphereGeometry(500, 60, 40);
+    geometry.scale(-1, 1, 1); // 안쪽에서 보이도록 뒤집기
+
+    const material = new THREE.MeshBasicMaterial({ color: 0x111111 });
+    sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+
+    // 마우스 이벤트
+    const canvas = renderer.domElement;
+    canvas.addEventListener('mousedown', onPointerDown);
+    canvas.addEventListener('mousemove', onPointerMove);
+    canvas.addEventListener('mouseup', onPointerUp);
+    canvas.addEventListener('mouseleave', onPointerUp);
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+
+    // 터치 이벤트
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onPointerUp);
+
+    window.addEventListener('resize', onWindowResize);
+
+    animate();
+  }
+
+  function loadImage(src) {
+    loading.classList.add('visible');
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      src,
+      (texture) => {
+        texture.minFilter = THREE.LinearFilter;
+        sphere.material.dispose();
+        sphere.material = new THREE.MeshBasicMaterial({ map: texture });
+        dropZone.style.display = 'none';
+        controls.classList.add('visible');
+        heightControl.classList.add('visible');
+        info.classList.add('visible');
+        info.style.opacity = '1';
+        loading.classList.remove('visible');
+        // 뷰어 표시 후 힌트 3초 뒤 페이드
+        setTimeout(() => {
+          info.style.transition = 'opacity 1s ease';
+          info.style.opacity = '0';
+          setTimeout(() => info.classList.remove('visible'), 1000);
+        }, 3000);
+      },
+      undefined,
+      (err) => {
+        loading.classList.remove('visible');
+        alert('이미지를 불러오지 못했습니다.');
+        console.error(err);
+      }
+    );
+  }
+
+  function onPointerDown(event) {
+    isUserInteracting = true;
+    onPointerDownMouseX = event.clientX;
+    onPointerDownMouseY = event.clientY;
+    onPointerDownLon = lon;
+    onPointerDownLat = lat;
+  }
+
+  function onPointerMove(event) {
+    if (!isUserInteracting) return;
+    lon = (onPointerDownMouseX - event.clientX) * 0.2 + onPointerDownLon;
+    lat = (event.clientY - onPointerDownMouseY) * 0.2 + onPointerDownLat;
+  }
+
+  function onPointerUp() {
+    isUserInteracting = false;
+  }
+
+  function onTouchStart(event) {
+    if (event.touches.length === 1) {
+      event.preventDefault();
+      isUserInteracting = true;
+      onPointerDownMouseX = event.touches[0].clientX;
+      onPointerDownMouseY = event.touches[0].clientY;
+      onPointerDownLon = lon;
+      onPointerDownLat = lat;
+    }
+  }
+
+  function onTouchMove(event) {
+    if (isUserInteracting && event.touches.length === 1) {
+      event.preventDefault();
+      lon = (onPointerDownMouseX - event.touches[0].clientX) * 0.2 + onPointerDownLon;
+      lat = (event.touches[0].clientY - onPointerDownMouseY) * 0.2 + onPointerDownLat;
+    }
+  }
+
+  function onWheel(event) {
+    event.preventDefault();
+    fov += event.deltaY * 0.05;
+    fov = Math.max(20, Math.min(100, fov));
+    camera.fov = fov;
+    camera.updateProjectionMatrix();
+  }
+
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (autoRotate && !isUserInteracting) {
+      lon += 0.05;
+    }
+    lat = Math.max(-85, Math.min(85, lat));
+    phi = THREE.MathUtils.degToRad(90 - lat);
+    theta = THREE.MathUtils.degToRad(lon);
+
+    // 카메라 위치를 구 내부에서 Y축으로 이동 (시점 높이 조절)
+    camera.position.set(0, cameraHeight, 0);
+
+    // 카메라 위치 기준으로 lookAt 타겟 계산
+    const x = camera.position.x + 500 * Math.sin(phi) * Math.cos(theta);
+    const y = camera.position.y + 500 * Math.cos(phi);
+    const z = camera.position.z + 500 * Math.sin(phi) * Math.sin(theta);
+    camera.lookAt(x, y, z);
+    renderer.render(scene, camera);
+  }
+
+  function updateHeight(val) {
+    cameraHeight = val;
+    heightSlider.value = val;
+    heightValue.textContent = val > 0 ? '+' + val : val;
+  }
+
+  // 드래그 & 드롭
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  document.body.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+  });
+  document.body.addEventListener('dragleave', (e) => {
+    if (e.target === document.body) {
+      dropZone.classList.remove('drag-over');
+    }
+  });
+  document.body.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) handleFile(file);
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => loadImage(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  // 컨트롤 버튼
+  fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    lon = 0; lat = 0; fov = 75;
+    camera.fov = fov;
+    camera.updateProjectionMatrix();
+    updateHeight(0);
+  });
+
+  // 시점 높이 슬라이더
+  heightSlider.addEventListener('input', (e) => {
+    updateHeight(parseInt(e.target.value, 10));
+  });
+
+  heightReset.addEventListener('click', () => {
+    updateHeight(0);
+  });
+
+  // 키보드 단축키
+  window.addEventListener('keydown', (e) => {
+    if (dropZone.style.display !== 'none') return; // 이미지 로드 전엔 비활성
+    const step = e.shiftKey ? 20 : 5;
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      updateHeight(Math.min(200, cameraHeight + step));
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      updateHeight(Math.max(-200, cameraHeight - step));
+    } else if (e.key === 'r' || e.key === 'R') {
+      updateHeight(0);
+    } else if (e.key === 'f' || e.key === 'F') {
+      fullscreenBtn.click();
+    }
+  });
+
+  autoRotateBtn.addEventListener('click', () => {
+    autoRotate = !autoRotate;
+    autoRotateBtn.textContent = autoRotate ? '회전 정지' : '자동 회전';
+    autoRotateBtn.style.background = autoRotate
+      ? 'rgba(255, 200, 80, 0.3)'
+      : 'rgba(255, 255, 255, 0.08)';
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
