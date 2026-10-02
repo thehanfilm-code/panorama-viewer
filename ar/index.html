@@ -206,7 +206,8 @@
     }
   }
   mv.addEventListener('load', updateNote);
-  customElements.whenDefined('model-viewer').then(() => { updateNote(); select(2); });
+  const fromHash = WORKS.findIndex((w) => w.id === location.hash.replace('#', ''));
+  customElements.whenDefined('model-viewer').then(() => { updateNote(); select(fromHash >= 0 ? fromHash : 2); });
 })();
 </script>
 </body>

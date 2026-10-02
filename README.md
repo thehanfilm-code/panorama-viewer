@@ -53,3 +53,9 @@ open index.html
 - `ar/index.html` — Google `<model-viewer>` 기반. Android(Scene Viewer), iPhone(AR Quick Look) 지원. 데스크톱에서는 3D 미리보기만.
 - 3D 모델(GLB)은 `ar/img/*.jpg`와 페이지 안 `WORKS`의 치수(cm)로 브라우저에서 즉석 생성됩니다. 작품을 추가하려면 이미지와 `WORKS` 한 줄만 더하면 됩니다.
 - 카메라 권한이 필요하므로 **실제 사이트 주소(GitHub Pages)에서 열어야** AR 버튼이 동작합니다. iframe 안이나 `file://`로는 3D 미리보기만 됩니다.
+
+## 전자책 작품집 (`/book`)
+작가 소개 → 표지 → 목차 → 작품 8점 → 크기 비교 순서로 넘겨 보는 전자책입니다. 모서리를 잡아 끌면 종이가 접히듯 넘어갑니다. 각 작품 페이지의 "AR로 벽에 걸어보기"는 `/ar/#w번호`로 연결됩니다.
+
+- 작품 추가: `book/img/`에 이미지, `book/index.html`의 `WORKS`에 한 줄. AR 페이지의 `WORKS`에도 같은 줄을 더하면 됩니다.
+- `qr/` — 인쇄용 QR코드(전자책 / AR). `main` 브랜치가 GitHub Pages로 배포되므로 합쳐진 뒤부터 주소가 살아납니다.
