@@ -102,29 +102,93 @@
     rail.appendChild(b);
   });
 
-  // ---------- 브라우저에서 GLB 만들기: 실제 치수의 얇은 상자, 앞면에 그림 ----------
-  const DEPTH = 0.035; // 캔버스 두께(m)
+  // ---------- 브라우저에서 GLB 만들기: 실제 치수의 캔버스, 모서리 라운드 + 천 짜임 ----------
+  const DEPTH = 0.035;   // 캔버스 두께(m)
+  const ROUND = 0.004;   // 모서리 라운드 반지름(m)
+  const WEAVE_CM = 2;    // 천 짜임 타일 한 변(cm)
   const glbCache = new Map();
   function pad4(n) { return (4 - n % 4) % 4; }
-  function face(verts, normal) {
-    return { pos: verts.flat(), nor: [].concat(normal, normal, normal, normal), uv: [0, 1, 1, 1, 1, 0, 0, 0], idx: [0, 1, 2, 0, 2, 3] };
+
+  // 한 면을 격자로 만든다. 모서리 근처만 촘촘히 나눠서 라운드가 매끈하게 꺾이도록
+  function ticks(len) {
+    const h = len / 2, r = Math.min(ROUND, h * 0.5);
+    return [-h, -h + r * 0.35, -h + r * 0.7, -h + r, h - r, h - r * 0.7, h - r * 0.35, h];
+  }
+  function makeFace(center, u, v, normal, uLen, vLen, half, uvMode) {
+    const tu = ticks(uLen), tv = ticks(vLen);
+    const inner = half.map((x) => x - ROUND);
+    const g = { pos: [], nor: [], uv: [], idx: [] };
+    for (let j = 0; j < tv.length; j++) for (let i = 0; i < tu.length; i++) {
+      const a = tu[i], b = tv[j];
+      const p = [center[0] + u[0] * a + v[0] * b, center[1] + u[1] * a + v[1] * b, center[2] + u[2] * a + v[2] * b];
+      // 둥근 상자: 안쪽 상자에 가장 가까운 점에서 ROUND만큼 밀어낸다
+      const c = p.map((x, k) => Math.max(-inner[k], Math.min(inner[k], x)));
+      let n = [p[0] - c[0], p[1] - c[1], p[2] - c[2]];
+      const len = Math.hypot(...n);
+      n = len < 1e-9 ? normal : n.map((x) => x / len);
+      g.pos.push(c[0] + n[0] * ROUND, c[1] + n[1] * ROUND, c[2] + n[2] * ROUND);
+      g.nor.push(...n);
+      if (uvMode === 'image') g.uv.push(a / uLen + 0.5, 0.5 - b / vLen);
+      else g.uv.push(a * 100 / WEAVE_CM, b * 100 / WEAVE_CM); // 타일 단위(cm 기준)로 짜임이 모든 면에서 같은 크기
+    }
+    const nu = tu.length;
+    for (let j = 0; j < tv.length - 1; j++) for (let i = 0; i < nu - 1; i++) {
+      const k = j * nu + i;
+      g.idx.push(k, k + 1, k + nu + 1, k, k + nu + 1, k + nu);
+    }
+    return g;
   }
   function merge(faces) {
     const g = { pos: [], nor: [], uv: [], idx: [] };
-    faces.forEach((f, i) => { g.pos.push(...f.pos); g.nor.push(...f.nor); g.uv.push(...f.uv); g.idx.push(...f.idx.map((k) => k + 4 * i)); });
+    faces.forEach((f) => { const base = g.pos.length / 3; g.pos.push(...f.pos); g.nor.push(...f.nor); g.uv.push(...f.uv); g.idx.push(...f.idx.map((k) => k + base)); });
     return g;
   }
+
+  // 천 짜임 노멀맵(평직): 날실·씨실이 번갈아 위로 올라오는 높이장을 만들어 법선으로 변환
+  let weavePromise = null;
+  function weaveNormalMap() {
+    if (weavePromise) return weavePromise;
+    weavePromise = (async () => {
+      const S = 256, P = 16, cv = document.createElement('canvas');
+      cv.width = cv.height = S;
+      const ctx = cv.getContext('2d'), img = ctx.createImageData(S, S);
+      const h = new Float32Array(S * S);
+      let seed = 7;
+      const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+        const fx = (x % P) / P, fy = (y % P) / P;
+        const warpOnTop = ((Math.floor(x / P) + Math.floor(y / P)) % 2) === 0;
+        const a = Math.sin(Math.PI * fx), b = Math.sin(Math.PI * fy);
+        h[y * S + x] = (warpOnTop ? a + 0.35 * b : b + 0.35 * a) + (rnd() - 0.5) * 0.12;
+      }
+      const at = (x, y) => h[((y + S) % S) * S + ((x + S) % S)];
+      for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+        const dx = (at(x + 1, y) - at(x - 1, y)) * 1.6, dy = (at(x, y + 1) - at(x, y - 1)) * 1.6;
+        const l = Math.hypot(dx, dy, 1), o = (y * S + x) * 4;
+        img.data[o] = 128 + (-dx / l) * 127; img.data[o + 1] = 128 + (dy / l) * 127; img.data[o + 2] = 128 + (1 / l) * 127; img.data[o + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      const blob = await new Promise((r) => cv.toBlob(r, 'image/png'));
+      return new Uint8Array(await blob.arrayBuffer());
+    })();
+    return weavePromise;
+  }
+
   async function buildGLB(w) {
     if (glbCache.has(w.id)) return glbCache.get(w.id);
-    const img = new Uint8Array(await (await fetch(`img/${w.id}.jpg`)).arrayBuffer());
-    const x = w.w / 200, y = w.h / 200, z = DEPTH / 2;
-    const front = face([[-x, -y, z], [x, -y, z], [x, y, z], [-x, y, z]], [0, 0, 1]);
+    const [img, weave] = await Promise.all([
+      fetch(`img/${w.id}.jpg`).then((r) => r.arrayBuffer()).then((b) => new Uint8Array(b)),
+      weaveNormalMap(),
+    ]);
+    const W = w.w / 100, H = w.h / 100, D = DEPTH, half = [W / 2, H / 2, D / 2];
+    const x = half[0], y = half[1], z = half[2];
+    const front = makeFace([0, 0, z], [1, 0, 0], [0, 1, 0], [0, 0, 1], W, H, half, 'image');
     const sides = merge([
-      face([[x, -y, -z], [-x, -y, -z], [-x, y, -z], [x, y, -z]], [0, 0, -1]),
-      face([[-x, -y, -z], [-x, -y, z], [-x, y, z], [-x, y, -z]], [-1, 0, 0]),
-      face([[x, -y, z], [x, -y, -z], [x, y, -z], [x, y, z]], [1, 0, 0]),
-      face([[-x, y, z], [x, y, z], [x, y, -z], [-x, y, -z]], [0, 1, 0]),
-      face([[-x, -y, -z], [x, -y, -z], [x, -y, z], [-x, -y, z]], [0, -1, 0]),
+      makeFace([0, 0, -z], [-1, 0, 0], [0, 1, 0], [0, 0, -1], W, H, half, 'tile'),
+      makeFace([-x, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], D, H, half, 'tile'),
+      makeFace([x, 0, 0], [0, 0, -1], [0, 1, 0], [1, 0, 0], D, H, half, 'tile'),
+      makeFace([0, y, 0], [1, 0, 0], [0, 0, -1], [0, 1, 0], W, D, half, 'tile'),
+      makeFace([0, -y, 0], [1, 0, 0], [0, 0, 1], [0, -1, 0], W, D, half, 'tile'),
     ]);
     const chunks = [], views = [], accessors = [];
     let offset = 0;
@@ -151,17 +215,23 @@
         indices: addAcc(new Uint16Array(g.idx), 5123, 'SCALAR', g.idx.length, 34963), material };
     };
     const prims = [prim(front, 0), prim(sides, 1)];
-    const imgView = addView(img);
+    const imgView = addView(img), weaveView = addView(weave);
+    // 앞면은 그림 UV(0~1)라서 짜임 타일 수를 텍스처 변환으로 맞춘다
+    const weaveOnFront = { index: 1, scale: 0.45, extensions: { KHR_texture_transform: { scale: [w.w / WEAVE_CM, w.h / WEAVE_CM] } } };
     const gltf = {
       asset: { version: '2.0', generator: 'ar/index.html' }, scene: 0, scenes: [{ nodes: [0] }],
+      extensionsUsed: ['KHR_texture_transform'],
       nodes: [{ mesh: 0, name: w.id }], meshes: [{ primitives: prims }],
       materials: [
-        { name: 'painting', pbrMetallicRoughness: { baseColorTexture: { index: 0 }, metallicFactor: 0, roughnessFactor: 0.9 } },
-        { name: 'canvas-edge', pbrMetallicRoughness: { baseColorFactor: [0.93, 0.92, 0.89, 1], metallicFactor: 0, roughnessFactor: 1 } },
+        { name: 'painting', pbrMetallicRoughness: { baseColorTexture: { index: 0 }, metallicFactor: 0, roughnessFactor: 0.92 }, normalTexture: weaveOnFront },
+        { name: 'canvas-edge', pbrMetallicRoughness: { baseColorFactor: [0.93, 0.915, 0.88, 1], metallicFactor: 0, roughnessFactor: 1 }, normalTexture: { index: 1, scale: 0.6 } },
       ],
-      textures: [{ source: 0, sampler: 0 }],
-      samplers: [{ magFilter: 9729, minFilter: 9987, wrapS: 33071, wrapT: 33071 }],
-      images: [{ bufferView: imgView, mimeType: 'image/jpeg' }],
+      textures: [{ source: 0, sampler: 0 }, { source: 1, sampler: 1 }],
+      samplers: [
+        { magFilter: 9729, minFilter: 9987, wrapS: 33071, wrapT: 33071 },
+        { magFilter: 9729, minFilter: 9987, wrapS: 10497, wrapT: 10497 },
+      ],
+      images: [{ bufferView: imgView, mimeType: 'image/jpeg' }, { bufferView: weaveView, mimeType: 'image/png' }],
       bufferViews: views, accessors, buffers: [{ byteLength: offset }],
     };
     let json = new TextEncoder().encode(JSON.stringify(gltf));
