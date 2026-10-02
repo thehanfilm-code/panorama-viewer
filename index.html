@@ -180,6 +180,57 @@
     z-index: 20;
   }
   #loading.visible { display: block; }
+  /* 전자책 페이지 넘김 레이어 */
+  #flip-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    pointer-events: none; /* 터치는 아래 캔버스로 통과 */
+    perspective-origin: 0 50%;
+    display: none;
+    z-index: 5;
+  }
+  #flip-layer.visible { display: block; }
+  #flip-page {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform-origin: 0 50%; /* 왼쪽 가장자리가 책등 */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
+  }
+  #flip-canvas { width: 100%; height: 100%; cursor: default; }
+  #flip-shade {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.6));
+    opacity: 0;
+  }
+  #flip-shadow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 60px; height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0));
+    opacity: 0;
+  }
+  #page-indicator {
+    position: absolute;
+    bottom: 92px; left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    border-radius: 999px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    font-variant-numeric: tabular-nums;
+    display: none;
+    z-index: 10;
+  }
+  #page-indicator.visible { display: block; }
   canvas { display: block; cursor: grab; }
   canvas:active { cursor: grabbing; }
 </style>
@@ -187,16 +238,27 @@
 <body>
 <div id="container"></div>
 
+<div id="flip-layer">
+  <div id="flip-shadow"></div>
+  <div id="flip-page">
+    <canvas id="flip-canvas"></canvas>
+    <div id="flip-shade"></div>
+  </div>
+</div>
+
+<div id="page-indicator"></div>
+
 <div id="drop-zone">
   <div class="icon">🌐</div>
   <h1>360° 파노라마 뷰어</h1>
   <p>이미지를 드래그하거나 클릭해서 업로드</p>
-  <p class="hint">Equirectangular (2:1 비율) 이미지 권장 · JPG, PNG</p>
+  <p class="hint">Equirectangular (2:1 비율) 이미지 권장 · JPG, PNG<br>여러 장을 고르면 전자책처럼 넘겨볼 수 있어요</p>
 </div>
 
 <div id="info">
   드래그: 시점 회전 · 스크롤: 줌<br>
   슬라이더 / ↑↓ : 시점 높이
+  <span id="info-flip"><br>가장자리 스와이프 / ←→ : 페이지 넘기기</span>
 </div>
 
 <div id="loading">이미지 로딩 중...</div>
@@ -215,7 +277,7 @@
   <button class="btn" id="autorotate-btn">자동 회전</button>
 </div>
 
-<input type="file" id="file-input" accept="image/*">
+<input type="file" id="file-input" accept="image/*" multiple>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -230,10 +292,17 @@
   let autoRotate = false;
   let cameraHeight = 0; // 구 내부에서 카메라의 Y 위치 (-200 ~ +200)
 
+  // 여러 장의 파노라마 (전자책 페이지)
+  let images = [];      // { url, texture, promise }
+  let currentIndex = 0;
+  let flip = null;      // 진행 중인 페이지 넘김 { dir, target, angle }
+  let swipe = null;     // 가장자리 스와이프 제스처 { mode, dir, startX, startY, lastX, lastT, vx }
+
   const container = document.getElementById('container');
   const dropZone = document.getElementById('drop-zone');
   const controls = document.getElementById('controls');
   const info = document.getElementById('info');
+  const infoFlip = document.getElementById('info-flip');
   const loading = document.getElementById('loading');
   const fileInput = document.getElementById('file-input');
   const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -243,6 +312,13 @@
   const heightSlider = document.getElementById('height-slider');
   const heightValue = document.getElementById('height-value');
   const heightReset = document.getElementById('height-reset');
+  const pageIndicator = document.getElementById('page-indicator');
+  const flipLayer = document.getElementById('flip-layer');
+  const flipPage = document.getElementById('flip-page');
+  const flipCanvas = document.getElementById('flip-canvas');
+  const flipShade = document.getElementById('flip-shade');
+  const flipShadow = document.getElementById('flip-shadow');
+  const flipCtx = flipCanvas.getContext('2d');
 
   function init() {
     scene = new THREE.Scene();
@@ -271,28 +347,94 @@
     // 터치 이벤트
     canvas.addEventListener('touchstart', onTouchStart, { passive: false });
     canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-    canvas.addEventListener('touchend', onPointerUp);
+    canvas.addEventListener('touchend', onTouchEnd);
+    canvas.addEventListener('touchcancel', onTouchEnd);
 
     window.addEventListener('resize', onWindowResize);
 
     animate();
   }
 
-  function loadImage(src) {
+  function loadTexture(i) {
+    const item = images[i];
+    if (!item.promise) {
+      item.promise = new Promise((resolve, reject) => {
+        new THREE.TextureLoader().load(
+          item.url,
+          (texture) => {
+            texture.minFilter = THREE.LinearFilter;
+            // 로딩 중 이미지 목록이 바뀌었으면 버린다
+            if (!images.includes(item)) {
+              texture.dispose();
+              reject(new Error('stale'));
+              return;
+            }
+            item.texture = texture;
+            resolve(texture);
+          },
+          undefined,
+          (err) => {
+            item.promise = null;
+            reject(err);
+          }
+        );
+      });
+    }
+    return item.promise;
+  }
+
+  // 현재 페이지 앞뒤 한 장씩만 GPU에 올려두고 나머지는 해제
+  function preloadNeighbors() {
+    images.forEach((item, i) => {
+      if (Math.abs(i - currentIndex) > 1 && item.texture) {
+        item.texture.dispose();
+        item.texture = null;
+        item.promise = null;
+      }
+    });
+    [currentIndex - 1, currentIndex + 1].forEach((i) => {
+      if (i >= 0 && i < images.length) loadTexture(i).catch(() => {});
+    });
+  }
+
+  function setSphereTexture(texture) {
+    sphere.material.map = texture;
+    sphere.material.color.set(0xffffff);
+    sphere.material.needsUpdate = true;
+  }
+
+  function updatePageIndicator() {
+    const multi = images.length > 1;
+    pageIndicator.classList.toggle('visible', multi);
+    pageIndicator.textContent = (currentIndex + 1) + ' / ' + images.length;
+    infoFlip.style.display = multi ? '' : 'none';
+  }
+
+  function handleFiles(fileList) {
+    const files = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
+    if (!files.length) return;
+
+    cancelFlip();
+    images.forEach((item) => {
+      if (item.texture) item.texture.dispose();
+      URL.revokeObjectURL(item.url);
+    });
+    images = files.map((f) => ({ url: URL.createObjectURL(f), texture: null, promise: null }));
+    currentIndex = 0;
+
     loading.classList.add('visible');
-    const loader = new THREE.TextureLoader();
-    loader.load(
-      src,
+    loadTexture(0).then(
       (texture) => {
-        texture.minFilter = THREE.LinearFilter;
-        sphere.material.dispose();
-        sphere.material = new THREE.MeshBasicMaterial({ map: texture });
+        setSphereTexture(texture);
         dropZone.style.display = 'none';
         controls.classList.add('visible');
         heightControl.classList.add('visible');
+        updatePageIndicator();
         info.classList.add('visible');
+        info.style.transition = '';
         info.style.opacity = '1';
         loading.classList.remove('visible');
+        preloadNeighbors();
         // 뷰어 표시 후 힌트 3초 뒤 페이드
         setTimeout(() => {
           info.style.transition = 'opacity 1s ease';
@@ -300,14 +442,123 @@
           setTimeout(() => info.classList.remove('visible'), 1000);
         }, 3000);
       },
-      undefined,
       (err) => {
+        if (err && err.message === 'stale') return;
         loading.classList.remove('visible');
         alert('이미지를 불러오지 못했습니다.');
         console.error(err);
       }
     );
   }
+
+  // ---------- 전자책 페이지 넘김 ----------
+
+  // 주어진 텍스처로 현재 시점을 렌더링해서 넘김용 종이(캔버스)에 복사
+  function snapshot(texture) {
+    const original = sphere.material.map;
+    sphere.material.map = texture;
+    updateCamera();
+    renderer.render(scene, camera);
+    const src = renderer.domElement;
+    flipCanvas.width = src.width;
+    flipCanvas.height = src.height;
+    flipCtx.drawImage(src, 0, 0);
+    sphere.material.map = original;
+  }
+
+  // dir: +1 다음 장, -1 이전 장. 대상 이미지가 아직 준비 안 됐으면 false
+  function startFlip(dir) {
+    const target = currentIndex + dir;
+    if (flip || target < 0 || target >= images.length) return false;
+    const targetTexture = images[target].texture;
+    const currentTexture = images[currentIndex].texture;
+    if (!targetTexture || !currentTexture) return false;
+
+    if (dir > 0) {
+      // 현재 장이 종이가 되어 왼쪽으로 넘어가고, 그 아래 다음 장이 드러남
+      snapshot(currentTexture);
+      setSphereTexture(targetTexture);
+    } else {
+      // 이전 장이 종이가 되어 왼쪽에서 다시 덮여 옴
+      snapshot(targetTexture);
+    }
+    flip = { dir, target, angle: dir > 0 ? 0 : 90 };
+    flipLayer.style.perspective = (window.innerWidth * 4) + 'px';
+    flipLayer.classList.add('visible');
+    renderFlip();
+    return true;
+  }
+
+  // angle: 0 = 종이가 화면을 덮은 상태, 90 = 완전히 넘어간 상태
+  function renderFlip() {
+    const a = flip.angle;
+    const rad = THREE.MathUtils.degToRad(a);
+    const w = window.innerWidth;
+    flipPage.style.transform = 'rotateY(' + (-a) + 'deg)';
+    flipShade.style.opacity = (a / 90).toFixed(3);
+    // 종이 끝이 화면에 투영되는 위치에 그림자를 드리운다
+    const k = w / (w * 4);
+    const edgeX = w * Math.cos(rad) / (1 - k * Math.sin(rad));
+    flipShadow.style.transform = 'translateX(' + edgeX.toFixed(1) + 'px)';
+    flipShadow.style.opacity = Math.sin(rad * 2).toFixed(3);
+  }
+
+  function settleFlip(commit) {
+    const f = flip;
+    const from = f.angle;
+    const to = (commit === (f.dir > 0)) ? 90 : 0;
+    const duration = 120 + 280 * Math.abs(to - from) / 90;
+    const t0 = performance.now();
+    f.settling = true;
+    function step(now) {
+      if (flip !== f) return;
+      const t = Math.min(1, (now - t0) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      f.angle = from + (to - from) * eased;
+      renderFlip();
+      if (t < 1) requestAnimationFrame(step);
+      else finishFlip(commit);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function finishFlip(commit) {
+    const { dir, target } = flip;
+    if (commit) {
+      currentIndex = target;
+      if (dir < 0) setSphereTexture(images[target].texture);
+      updatePageIndicator();
+      preloadNeighbors();
+    } else if (dir > 0) {
+      setSphereTexture(images[currentIndex].texture);
+    }
+    flip = null;
+    flipLayer.classList.remove('visible');
+  }
+
+  function cancelFlip() {
+    if (flip && flip.dir > 0 && images[currentIndex] && images[currentIndex].texture) {
+      setSphereTexture(images[currentIndex].texture);
+    }
+    flip = null;
+    swipe = null;
+    flipLayer.classList.remove('visible');
+  }
+
+  // 키보드 등에서 애니메이션과 함께 한 장 넘기기
+  function flipBy(dir) {
+    const target = currentIndex + dir;
+    if (flip || target < 0 || target >= images.length) return;
+    loadTexture(target).then(() => {
+      if (currentIndex + dir === target && startFlip(dir)) settleFlip(true);
+    }, () => {});
+  }
+
+  function edgeZoneWidth() {
+    return Math.max(48, window.innerWidth * 0.15);
+  }
+
+  // ---------- 입력 ----------
 
   function onPointerDown(event) {
     isUserInteracting = true;
@@ -328,22 +579,86 @@
   }
 
   function onTouchStart(event) {
-    if (event.touches.length === 1) {
-      event.preventDefault();
-      isUserInteracting = true;
-      onPointerDownMouseX = event.touches[0].clientX;
-      onPointerDownMouseY = event.touches[0].clientY;
-      onPointerDownLon = lon;
-      onPointerDownLat = lat;
+    if (event.touches.length !== 1) return;
+    event.preventDefault();
+    if (flip) return; // 넘김 애니메이션 중에는 무시
+    const t = event.touches[0];
+    isUserInteracting = true;
+    onPointerDownMouseX = t.clientX;
+    onPointerDownMouseY = t.clientY;
+    onPointerDownLon = lon;
+    onPointerDownLat = lat;
+
+    // 좌/우 가장자리에서 시작한 터치는 페이지 넘김 후보
+    swipe = null;
+    const edge = edgeZoneWidth();
+    let dir = 0;
+    if (t.clientX > window.innerWidth - edge && currentIndex < images.length - 1) dir = 1;
+    else if (t.clientX < edge && currentIndex > 0) dir = -1;
+    if (dir) {
+      swipe = {
+        mode: 'pending', dir,
+        startX: t.clientX, startY: t.clientY,
+        lastX: t.clientX, lastT: performance.now(), vx: 0
+      };
     }
   }
 
   function onTouchMove(event) {
-    if (isUserInteracting && event.touches.length === 1) {
-      event.preventDefault();
-      lon = (onPointerDownMouseX - event.touches[0].clientX) * 0.2 + onPointerDownLon;
-      lat = (event.touches[0].clientY - onPointerDownMouseY) * 0.2 + onPointerDownLat;
+    if (event.touches.length !== 1) return;
+    event.preventDefault();
+    const x = event.touches[0].clientX;
+    const y = event.touches[0].clientY;
+
+    if (swipe && swipe.mode === 'pending') {
+      const dx = x - swipe.startX, dy = y - swipe.startY;
+      if (Math.hypot(dx, dy) < 10) return;
+      // 책 안쪽 방향으로의 가로 스와이프면 넘김, 아니면 평소처럼 회전
+      if (Math.abs(dx) > Math.abs(dy) && Math.sign(dx) === -swipe.dir && startFlip(swipe.dir)) {
+        swipe.mode = 'flip';
+        isUserInteracting = false;
+      } else {
+        swipe = null;
+      }
     }
+
+    if (swipe && swipe.mode === 'flip') {
+      const now = performance.now();
+      const dt = now - swipe.lastT;
+      if (dt > 0) swipe.vx = 0.6 * ((x - swipe.lastX) / dt) + 0.4 * swipe.vx;
+      swipe.lastX = x;
+      swipe.lastT = now;
+
+      // 손가락 위치에 맞춰 종이를 들어 올린다 (1 = 펼친 상태, 0 = 넘어간 상태)
+      const w = window.innerWidth;
+      let c = swipe.dir > 0
+        ? x / swipe.startX
+        : (x - swipe.startX) / (w - swipe.startX);
+      c = Math.max(0, Math.min(1, c));
+      flip.angle = THREE.MathUtils.radToDeg(Math.acos(c));
+      renderFlip();
+      return;
+    }
+
+    if (isUserInteracting) {
+      lon = (onPointerDownMouseX - x) * 0.2 + onPointerDownLon;
+      lat = (y - onPointerDownMouseY) * 0.2 + onPointerDownLat;
+    }
+  }
+
+  function onTouchEnd(event) {
+    if (swipe && swipe.mode === 'flip' && flip && !flip.settling) {
+      // 넘김 방향 속도 (px/ms). 빠르게 튕기면 덜 끌었어도 넘어간다
+      // (손가락을 멈췄다 떼면 속도 0)
+      const idle = performance.now() - swipe.lastT > 100;
+      const speed = idle ? 0 : swipe.vx * -swipe.dir;
+      const progress = swipe.dir > 0 ? flip.angle / 90 : 1 - flip.angle / 90;
+      const commit = event.type !== 'touchcancel' &&
+        (speed > 0.3 || (progress > 0.5 && speed > -0.3));
+      settleFlip(commit);
+    }
+    swipe = null;
+    isUserInteracting = false;
   }
 
   function onWheel(event) {
@@ -358,13 +673,10 @@
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    if (flip) cancelFlip();
   }
 
-  function animate() {
-    requestAnimationFrame(animate);
-    if (autoRotate && !isUserInteracting) {
-      lon += 0.05;
-    }
+  function updateCamera() {
     lat = Math.max(-85, Math.min(85, lat));
     phi = THREE.MathUtils.degToRad(90 - lat);
     theta = THREE.MathUtils.degToRad(lon);
@@ -377,6 +689,15 @@
     const y = camera.position.y + 500 * Math.cos(phi);
     const z = camera.position.z + 500 * Math.sin(phi) * Math.sin(theta);
     camera.lookAt(x, y, z);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    // 넘김 중에는 종이(스냅샷)와 시점이 어긋나지 않도록 회전 정지
+    if (autoRotate && !isUserInteracting && !flip) {
+      lon += 0.05;
+    }
+    updateCamera();
     renderer.render(scene, camera);
   }
 
@@ -401,19 +722,13 @@
   document.body.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) handleFile(file);
+    handleFiles(e.dataTransfer.files);
   });
 
   fileInput.addEventListener('change', (e) => {
-    if (e.target.files[0]) handleFile(e.target.files[0]);
+    handleFiles(e.target.files);
+    e.target.value = ''; // 같은 파일을 다시 골라도 change가 발생하도록
   });
-
-  function handleFile(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => loadImage(e.target.result);
-    reader.readAsDataURL(file);
-  }
 
   // 컨트롤 버튼
   fullscreenBtn.addEventListener('click', () => {
@@ -450,6 +765,12 @@
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       updateHeight(Math.max(-200, cameraHeight - step));
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      flipBy(1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      flipBy(-1);
     } else if (e.key === 'r' || e.key === 'R') {
       updateHeight(0);
     } else if (e.key === 'f' || e.key === 'F') {
