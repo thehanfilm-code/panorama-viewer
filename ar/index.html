@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>이태랑 AR 벽걸이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;400;600&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  /* Layout: 흰 갤러리 벽. 위에 3D 캔버스 한 점, 아래에 작품 선택 줄. 흰 갤러리 단일 테마. */
+  :root {
+    --white: #ffffff; --wall: #f3f3f1; --ink: #141414; --muted: #77776f; --faint: #b5b5ae; --rule: #e3e3de;
+    --f-serif: 'Nanum Myeongjo', 'AppleMyungjo', 'Batang', serif;
+    --f-sans: 'Gothic A1', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+    color-scheme: light;
+  }
+  html, body { height: 100%; }
+  body { background: var(--white); color: var(--ink); font-family: var(--f-sans); overflow: hidden; -webkit-tap-highlight-color: transparent; }
+  button { font: inherit; color: inherit; }
+  button:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+  .app { height: 100%; display: flex; flex-direction: column; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-inline: 20px; padding-block: calc(14px + env(safe-area-inset-top, 0px)) 10px; border-bottom: 1px solid var(--rule); }
+  header .who { font-family: var(--f-serif); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
+  header .what { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+  .stage { position: relative; flex: 1; min-height: 0; background: var(--wall); }
+  model-viewer { width: 100%; height: 100%; --poster-color: transparent; --progress-bar-color: var(--ink); --progress-bar-height: 2px; }
+  model-viewer::part(default-ar-button) { display: none; }
+  .label { position: absolute; left: 20px; bottom: 16px; right: 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; pointer-events: none; }
+  .label .t { display: grid; gap: 2px; }
+  .label .ko { font-family: var(--f-serif); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .label .en { font-size: 11px; font-style: italic; color: var(--muted); }
+  .label .meta { margin-top: 4px; font-size: 10.5px; line-height: 1.6; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ar-btn { pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; padding: 13px 18px; background: var(--ink); color: var(--white); border: 0; cursor: pointer; font-size: 13px; letter-spacing: .04em; white-space: nowrap; }
+  .ar-btn svg { width: 16px; height: 16px; }
+  .ar-btn[hidden] { display: none; }
+  .note { position: absolute; top: 14px; left: 20px; right: 20px; font-size: 11px; line-height: 1.6; color: var(--muted); max-width: 32em; }
+  .note b { font-weight: 600; color: var(--ink); }
+
+  .rail { display: flex; gap: 8px; overflow-x: auto; padding-inline: 20px; padding-block: 12px calc(14px + env(safe-area-inset-bottom, 0px)); scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail button { flex: 0 0 auto; width: 56px; height: 72px; padding: 0; border: 1px solid var(--rule); background: var(--white); cursor: pointer; display: grid; place-items: center; }
+  .rail button img { width: 44px; height: 58px; object-fit: cover; display: block; opacity: .75; transition: opacity .15s; }
+  .rail button[aria-pressed="true"] { border-color: var(--ink); }
+  .rail button[aria-pressed="true"] img, .rail button:hover img { opacity: 1; }
+  .ruler { display: flex; align-items: center; gap: 8px; padding-inline: 20px; padding-block: 0 8px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ruler i { display: block; height: 5px; border: 1px solid var(--muted); border-top: 0; }
+  @media (max-width: 420px) { .label { flex-direction: column; align-items: stretch; } .ar-btn { justify-content: center; } }
+  @media (prefers-reduced-motion: reduce) { .rail button img { transition: none; } }
+</style>
+</head>
+<body>
+<main class="app">
+  <header><span class="who">이태랑</span><span class="what">AR · 벽에 걸어보기</span></header>
+  <div class="stage">
+    <model-viewer id="mv" alt="캔버스 3D 모델" ar ar-modes="webxr scene-viewer quick-look" ar-placement="wall" ar-scale="fixed"
+      camera-controls disable-pan camera-orbit="-12deg 85deg auto" min-camera-orbit="auto 60deg auto" max-camera-orbit="auto 100deg auto"
+      shadow-intensity="0.6" shadow-softness="0.9" exposure="1.05" environment-image="neutral" interaction-prompt="none" loading="eager">
+      <button class="ar-btn" slot="ar-button" id="ar-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7V4h3M18 4h3v3M21 17v3h-3M6 20H3v-3"/><rect x="7" y="8" width="10" height="8"/></svg>
+        벽에 걸어보기
+      </button>
+    </model-viewer>
+    <p class="note" id="note"></p>
+    <div class="label">
+      <div class="t"><p class="ko" id="ko"></p><p class="en" id="en"></p><p class="meta" id="meta"></p></div>
+    </div>
+  </div>
+  <div class="ruler"><i id="ruler"></i><span>50 cm · 아래 그림들은 같은 축척</span></div>
+  <nav class="rail" id="rail" aria-label="작품 선택"></nav>
+</main>
+
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<script>
+(function () {
+  const WORKS = [
+    { id: 'w1', ko: '핑크가 있는 즉흥', en: 'Improvisation with pink', year: 2026, w: 65.1, h: 90.9, ho: '30호 P' },
+    { id: 'w2', ko: '지워진 생각', en: 'Erased Thought', year: 2026, w: 65.1, h: 90.9, ho: '30호 P' },
+    { id: 'w3', ko: '순간의 함몰', en: 'depression of the moment', year: 2026, w: 130.3, h: 162.2, ho: '100호 F' },
+    { id: 'w4', ko: '인스턴트 꿈', en: 'Instant dream', year: 2026, w: 60.6, h: 72.7, ho: '20호 F' },
+    { id: 'w5', ko: '검은 사실', en: 'Black facts', year: 2025, w: 72.7, h: 90.9, ho: '30호 F' },
+    { id: 'w6', ko: '현존성', en: 'Presence', year: 2026, w: 72.7, h: 90.9, ho: '30호 F' },
+    { id: 'w7', ko: '무엇에 따라서', en: 'According to What', year: 2026, w: 60.6, h: 72.7, ho: '20호 F' },
+    { id: 'w8', ko: '자기정의', en: 'self-definition', year: 2025, w: 80.3, h: 116.8, ho: '50호 P' },
+  ];
+  const $ = (id) => document.getElementById(id);
+  const mv = $('mv'), rail = $('rail'), note = $('note');
+
+  // 같은 축척 썸네일: 가장 큰 그림(162.2cm)이 58px
+  const k = 58 / 162.2;
+  $('ruler').style.width = (50 * k).toFixed(1) + 'px';
+  WORKS.forEach((w, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', w.ko);
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `<img src="img/${w.id}.jpg" alt="" draggable="false" style="width:${(w.w * k).toFixed(1)}px;height:${(w.h * k).toFixed(1)}px">`;
+    b.addEventListener('click', () => select(i));
+    rail.appendChild(b);
+  });
+
+  // ---------- 브라우저에서 GLB 만들기: 실제 치수의 얇은 상자, 앞면에 그림 ----------
+  const DEPTH = 0.035; // 캔버스 두께(m)
+  const glbCache = new Map();
+  function pad4(n) { return (4 - n % 4) % 4; }
+  function face(verts, normal) {
+    return { pos: verts.flat(), nor: [].concat(normal, normal, normal, normal), uv: [0, 1, 1, 1, 1, 0, 0, 0], idx: [0, 1, 2, 0, 2, 3] };
+  }
+  function merge(faces) {
+    const g = { pos: [], nor: [], uv: [], idx: [] };
+    faces.forEach((f, i) => { g.pos.push(...f.pos); g.nor.push(...f.nor); g.uv.push(...f.uv); g.idx.push(...f.idx.map((k) => k + 4 * i)); });
+    return g;
+  }
+  async function buildGLB(w) {
+    if (glbCache.has(w.id)) return glbCache.get(w.id);
+    const img = new Uint8Array(await (await fetch(`img/${w.id}.jpg`)).arrayBuffer());
+    const x = w.w / 200, y = w.h / 200, z = DEPTH / 2;
+    const front = face([[-x, -y, z], [x, -y, z], [x, y, z], [-x, y, z]], [0, 0, 1]);
+    const sides = merge([
+      face([[x, -y, -z], [-x, -y, -z], [-x, y, -z], [x, y, -z]], [0, 0, -1]),
+      face([[-x, -y, -z], [-x, -y, z], [-x, y, z], [-x, y, -z]], [-1, 0, 0]),
+      face([[x, -y, z], [x, -y, -z], [x, y, -z], [x, y, z]], [1, 0, 0]),
+      face([[-x, y, z], [x, y, z], [x, y, -z], [-x, y, -z]], [0, 1, 0]),
+      face([[-x, -y, -z], [x, -y, -z], [x, -y, z], [-x, -y, z]], [0, -1, 0]),
+    ]);
+    const chunks = [], views = [], accessors = [];
+    let offset = 0;
+    const addView = (bytes, target) => {
+      const v = { buffer: 0, byteOffset: offset, byteLength: bytes.byteLength };
+      if (target) v.target = target;
+      views.push(v); chunks.push(bytes); offset += bytes.byteLength;
+      const p = pad4(offset); if (p) { chunks.push(new Uint8Array(p)); offset += p; }
+      return views.length - 1;
+    };
+    const addAcc = (arr, comp, type, count, target, bounds) => {
+      const acc = { bufferView: addView(new Uint8Array(arr.buffer), target), componentType: comp, count, type };
+      if (bounds) { acc.min = bounds[0]; acc.max = bounds[1]; }
+      accessors.push(acc); return accessors.length - 1;
+    };
+    const prim = (g, material) => {
+      const n = g.pos.length / 3;
+      const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < g.pos.length; i++) { const c = i % 3; mn[c] = Math.min(mn[c], g.pos[i]); mx[c] = Math.max(mx[c], g.pos[i]); }
+      return { attributes: {
+          POSITION: addAcc(new Float32Array(g.pos), 5126, 'VEC3', n, 34962, [mn, mx]),
+          NORMAL: addAcc(new Float32Array(g.nor), 5126, 'VEC3', n, 34962),
+          TEXCOORD_0: addAcc(new Float32Array(g.uv), 5126, 'VEC2', n, 34962) },
+        indices: addAcc(new Uint16Array(g.idx), 5123, 'SCALAR', g.idx.length, 34963), material };
+    };
+    const prims = [prim(front, 0), prim(sides, 1)];
+    const imgView = addView(img);
+    const gltf = {
+      asset: { version: '2.0', generator: 'ar/index.html' }, scene: 0, scenes: [{ nodes: [0] }],
+      nodes: [{ mesh: 0, name: w.id }], meshes: [{ primitives: prims }],
+      materials: [
+        { name: 'painting', pbrMetallicRoughness: { baseColorTexture: { index: 0 }, metallicFactor: 0, roughnessFactor: 0.9 } },
+        { name: 'canvas-edge', pbrMetallicRoughness: { baseColorFactor: [0.93, 0.92, 0.89, 1], metallicFactor: 0, roughnessFactor: 1 } },
+      ],
+      textures: [{ source: 0, sampler: 0 }],
+      samplers: [{ magFilter: 9729, minFilter: 9987, wrapS: 33071, wrapT: 33071 }],
+      images: [{ bufferView: imgView, mimeType: 'image/jpeg' }],
+      bufferViews: views, accessors, buffers: [{ byteLength: offset }],
+    };
+    let json = new TextEncoder().encode(JSON.stringify(gltf));
+    if (pad4(json.length)) { const j = new Uint8Array(json.length + pad4(json.length)).fill(0x20); j.set(json); json = j; }
+    const total = 12 + 8 + json.length + 8 + offset;
+    const out = new Uint8Array(total), dv = new DataView(out.buffer);
+    let o = 0;
+    dv.setUint32(0, 0x46546C67, true); dv.setUint32(4, 2, true); dv.setUint32(8, total, true); o = 12;
+    dv.setUint32(o, json.length, true); dv.setUint32(o + 4, 0x4E4F534A, true); out.set(json, o + 8); o += 8 + json.length;
+    dv.setUint32(o, offset, true); dv.setUint32(o + 4, 0x004E4942, true); o += 8;
+    for (const c of chunks) { out.set(c, o); o += c.byteLength; }
+    const url = URL.createObjectURL(new Blob([out], { type: 'model/gltf-binary' }));
+    glbCache.set(w.id, url);
+    return url;
+  }
+
+  let cur = -1;
+  async function select(i) {
+    if (i === cur) return;
+    cur = i;
+    const w = WORKS[i];
+    const url = await buildGLB(w);
+    if (cur !== i) return;
+    mv.src = url;
+    mv.alt = `${w.ko}, ${w.w} × ${w.h} cm 캔버스`;
+    $('ko').textContent = w.ko;
+    $('en').textContent = w.en;
+    $('meta').innerHTML = `${w.year} · oil on canvas<br><b>${w.h} × ${w.w} cm</b> · ${w.ho} · 두께 3.5 cm`;
+    rail.querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+    rail.children[i].scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }
+
+  // 이 기기에서 AR이 되는지에 따라 안내문
+  function updateNote() {
+    const inFrame = window.top !== window.self;
+    if (mv.canActivateAR && !inFrame) {
+      note.innerHTML = '<b>벽에 걸어보기</b>를 누르고 카메라를 벽에 비추면 그림이 실제 크기로 걸립니다. 손가락으로 끌어 자리를 옮길 수 있어요.';
+    } else if (inFrame) {
+      note.innerHTML = '지금은 미리보기 화면 안이라 카메라 AR이 열리지 않습니다. 실제 사이트 주소(또는 QR)로 폰에서 열면 <b>벽에 걸어보기</b>가 작동합니다. 여기서는 드래그로 캔버스를 돌려 보세요.';
+    } else {
+      note.innerHTML = '이 기기는 AR을 지원하지 않습니다. 폰(iPhone 또는 Android)에서 열면 <b>벽에 걸어보기</b>가 나타납니다. 드래그로 캔버스를 돌려 보세요.';
+    }
+  }
+  mv.addEventListener('load', updateNote);
+  customElements.whenDefined('model-viewer').then(() => { updateNote(); select(2); });
+})();
+</script>
+</body>
+</html>
