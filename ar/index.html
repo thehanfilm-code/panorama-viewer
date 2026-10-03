@@ -26,18 +26,18 @@
   header .who { font-family: var(--f-serif); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
   header .what { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
 
-  .stage { position: relative; flex: 1; min-height: 0; background: var(--wall); }
-  model-viewer { width: 100%; height: 100%; --poster-color: transparent; --progress-bar-color: var(--ink); --progress-bar-height: 2px; }
+  .stage { position: relative; flex: 1; min-height: 0; background: var(--wall); display: flex; flex-direction: column; }
+  model-viewer { flex: 1; min-height: 0; width: 100%; --poster-color: transparent; --progress-bar-color: var(--ink); --progress-bar-height: 2px; }
   model-viewer::part(default-ar-button) { display: none; }
-  .label { position: absolute; left: 20px; bottom: 16px; right: 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; pointer-events: none; }
-  .label .t { display: grid; gap: 2px; }
+  .label { padding-inline: 20px; padding-block: 10px 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; border-top: 1px solid var(--rule); background: var(--white); }
+  .label .t { display: grid; gap: 2px; min-width: 0; }
   .label .ko { font-family: var(--f-serif); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
   .label .en { font-size: 11px; font-style: italic; color: var(--muted); }
   .label .meta { margin-top: 4px; font-size: 10.5px; line-height: 1.6; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .ar-btn { pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; padding: 13px 18px; background: var(--ink); color: var(--white); border: 0; cursor: pointer; font-size: 13px; letter-spacing: .04em; white-space: nowrap; }
+  .ar-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 10px; padding: 13px 18px; background: var(--ink); color: var(--white); border: 0; cursor: pointer; font-size: 13px; letter-spacing: .04em; white-space: nowrap; }
   .ar-btn svg { width: 16px; height: 16px; }
   .ar-btn[hidden] { display: none; }
-  .note { position: absolute; top: 14px; left: 20px; right: 20px; font-size: 11px; line-height: 1.6; color: var(--muted); max-width: 32em; }
+  .note { position: absolute; top: 12px; left: 20px; right: 20px; font-size: 11px; line-height: 1.6; color: var(--muted); max-width: 32em; pointer-events: none; }
   .note b { font-weight: 600; color: var(--ink); }
 
   .rail { display: flex; gap: 8px; overflow-x: auto; padding-inline: 20px; padding-block: 12px calc(14px + env(safe-area-inset-bottom, 0px)); scrollbar-width: none; }
@@ -59,14 +59,14 @@
     <model-viewer id="mv" alt="캔버스 3D 모델" ar ar-modes="webxr scene-viewer quick-look" ar-placement="wall" ar-scale="fixed"
       camera-controls disable-pan camera-orbit="-12deg 85deg auto" min-camera-orbit="auto 60deg auto" max-camera-orbit="auto 100deg auto"
       shadow-intensity="0.6" shadow-softness="0.9" exposure="1.05" environment-image="neutral" interaction-prompt="none" loading="eager">
-      <button class="ar-btn" slot="ar-button" id="ar-btn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7V4h3M18 4h3v3M21 17v3h-3M6 20H3v-3"/><rect x="7" y="8" width="10" height="8"/></svg>
-        벽에 걸어보기
-      </button>
     </model-viewer>
     <p class="note" id="note"></p>
     <div class="label">
       <div class="t"><p class="ko" id="ko"></p><p class="en" id="en"></p><p class="meta" id="meta"></p></div>
+      <button class="ar-btn" id="ar-btn" type="button" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7V4h3M18 4h3v3M21 17v3h-3M6 20H3v-3"/><rect x="7" y="8" width="10" height="8"/></svg>
+        벽에 걸어보기
+      </button>
     </div>
   </div>
   <div class="ruler"><i id="ruler"></i><span>50 cm · 아래 그림들은 같은 축척</span></div>
@@ -87,7 +87,8 @@
     { id: 'w8', ko: '자기정의', en: 'self-definition', year: 2025, w: 80.3, h: 116.8, ho: '50호 P' },
   ];
   const $ = (id) => document.getElementById(id);
-  const mv = $('mv'), rail = $('rail'), note = $('note');
+  const mv = $('mv'), rail = $('rail'), note = $('note'), arBtn = $('ar-btn');
+  arBtn.addEventListener('click', () => mv.activateAR());
 
   // 같은 축척 썸네일: 가장 큰 그림(162.2cm)이 58px
   const k = 58 / 162.2;
@@ -105,7 +106,8 @@
   // ---------- 브라우저에서 GLB 만들기: 실제 치수의 캔버스, 모서리 라운드 + 천 짜임 ----------
   const DEPTH = 0.035;   // 캔버스 두께(m)
   const ROUND = 0.004;   // 모서리 라운드 반지름(m)
-  const WEAVE_CM = 2;    // 천 짜임 타일 한 변(cm)
+  const WEAVE_PX = 1024, WEAVE_CELL = 4;          // 짜임 텍스처: 1024px에 실 256가닥
+  const WEAVE_CM = 256 * 0.15;                     // 옆면 기준 한 장 = 38.4 cm (실 간격 1.5 mm)
   const glbCache = new Map();
   function pad4(n) { return (4 - n % 4) % 4; }
 
@@ -149,21 +151,19 @@
   function weaveNormalMap() {
     if (weavePromise) return weavePromise;
     weavePromise = (async () => {
-      const S = 256, P = 16, cv = document.createElement('canvas');
+      const S = WEAVE_PX, P = WEAVE_CELL, cv = document.createElement('canvas');
       cv.width = cv.height = S;
       const ctx = cv.getContext('2d'), img = ctx.createImageData(S, S);
       const h = new Float32Array(S * S);
-      let seed = 7;
-      const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
       for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
         const fx = (x % P) / P, fy = (y % P) / P;
         const warpOnTop = ((Math.floor(x / P) + Math.floor(y / P)) % 2) === 0;
         const a = Math.sin(Math.PI * fx), b = Math.sin(Math.PI * fy);
-        h[y * S + x] = (warpOnTop ? a + 0.35 * b : b + 0.35 * a) + (rnd() - 0.5) * 0.12;
+        h[y * S + x] = warpOnTop ? a + 0.35 * b : b + 0.35 * a;
       }
       const at = (x, y) => h[((y + S) % S) * S + ((x + S) % S)];
       for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
-        const dx = (at(x + 1, y) - at(x - 1, y)) * 1.6, dy = (at(x, y + 1) - at(x, y - 1)) * 1.6;
+        const dx = (at(x + 1, y) - at(x - 1, y)) * 0.9, dy = (at(x, y + 1) - at(x, y - 1)) * 0.9;
         const l = Math.hypot(dx, dy, 1), o = (y * S + x) * 4;
         img.data[o] = 128 + (-dx / l) * 127; img.data[o + 1] = 128 + (dy / l) * 127; img.data[o + 2] = 128 + (1 / l) * 127; img.data[o + 3] = 255;
       }
@@ -216,15 +216,14 @@
     };
     const prims = [prim(front, 0), prim(sides, 1)];
     const imgView = addView(img), weaveView = addView(weave);
-    // 앞면은 그림 UV(0~1)라서 짜임 타일 수를 텍스처 변환으로 맞춘다
-    const weaveOnFront = { index: 1, scale: 0.45, extensions: { KHR_texture_transform: { scale: [w.w / WEAVE_CM, w.h / WEAVE_CM] } } };
+    // 앞면은 그림 UV(0~1) 그대로: 1024px 무늬가 그림 폭에 펼쳐져 실 간격 약 2.5~5 mm, 아주 약하게
+    const weaveOnFront = { index: 1, scale: 0.22 };
     const gltf = {
       asset: { version: '2.0', generator: 'ar/index.html' }, scene: 0, scenes: [{ nodes: [0] }],
-      extensionsUsed: ['KHR_texture_transform'],
       nodes: [{ mesh: 0, name: w.id }], meshes: [{ primitives: prims }],
       materials: [
         { name: 'painting', pbrMetallicRoughness: { baseColorTexture: { index: 0 }, metallicFactor: 0, roughnessFactor: 0.92 }, normalTexture: weaveOnFront },
-        { name: 'canvas-edge', pbrMetallicRoughness: { baseColorFactor: [0.93, 0.915, 0.88, 1], metallicFactor: 0, roughnessFactor: 1 }, normalTexture: { index: 1, scale: 0.6 } },
+        { name: 'canvas-edge', pbrMetallicRoughness: { baseColorFactor: [0.93, 0.915, 0.88, 1], metallicFactor: 0, roughnessFactor: 1 }, normalTexture: { index: 1, scale: 0.5 } },
       ],
       textures: [{ source: 0, sampler: 0 }, { source: 1, sampler: 1 }],
       samplers: [
@@ -267,6 +266,7 @@
   // 이 기기에서 AR이 되는지에 따라 안내문
   function updateNote() {
     const inFrame = window.top !== window.self;
+    arBtn.hidden = !(mv.canActivateAR && !inFrame);
     if (mv.canActivateAR && !inFrame) {
       note.innerHTML = '<b>벽에 걸어보기</b>를 누르고 카메라를 벽에 비추면 그림이 실제 크기로 걸립니다. 손가락으로 끌어 자리를 옮길 수 있어요.';
     } else if (inFrame) {
