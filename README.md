@@ -50,6 +50,7 @@ open index.html
 ## AR 벽걸이 데모 (`/ar`)
 작품을 실제 치수의 캔버스 3D 모델(GLB)로 만들어, 폰 브라우저에서 AR로 벽에 걸어 볼 수 있는 페이지입니다. 앱 설치 없이 동작합니다.
 
+- **한 점씩 / 전시 벽** 두 방식. 전시 벽은 고른 작품(기본 8점)을 그림 중심 높이를 맞춰 45 cm 간격으로 한 줄로 건 장면 하나를 만들어, AR에서 한 번 탭하면 전부 실제 크기로 걸립니다. `ar/#wall`로 바로 열 수 있습니다.
 - `ar/index.html` — Google `<model-viewer>` 기반. Android(Scene Viewer), iPhone(AR Quick Look) 지원. 데스크톱에서는 3D 미리보기만.
 - 3D 모델(GLB)은 `ar/img/*.jpg`와 페이지 안 `WORKS`의 치수(cm)로 브라우저에서 즉석 생성됩니다. 작품을 추가하려면 이미지와 `WORKS` 한 줄만 더하면 됩니다.
 - 카메라 권한이 필요하므로 **실제 사이트 주소(GitHub Pages)에서 열어야** AR 버튼이 동작합니다. iframe 안이나 `file://`로는 3D 미리보기만 됩니다.

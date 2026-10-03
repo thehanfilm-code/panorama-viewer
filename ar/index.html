@@ -22,7 +22,7 @@
   button { font: inherit; color: inherit; }
   button:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
   .app { height: 100%; display: flex; flex-direction: column; }
-  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-inline: 20px; padding-block: calc(14px + env(safe-area-inset-top, 0px)) 10px; border-bottom: 1px solid var(--rule); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 20px; padding-block: calc(14px + env(safe-area-inset-top, 0px)) 10px; border-bottom: 1px solid var(--rule); }
   header .who { font-family: var(--f-serif); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
   header .what { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
 
@@ -46,6 +46,10 @@
   .rail button img { width: 44px; height: 58px; object-fit: cover; display: block; opacity: .75; transition: opacity .15s; }
   .rail button[aria-pressed="true"] { border-color: var(--ink); }
   .rail button[aria-pressed="true"] img, .rail button:hover img { opacity: 1; }
+  .modes { display: flex; gap: 0; border: 1px solid var(--rule); }
+  .modes button { padding: 6px 10px; border: 0; background: var(--white); color: var(--muted); font-size: 11px; letter-spacing: .04em; cursor: pointer; }
+  .modes button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+  .rail.multi button[aria-pressed="false"] img { opacity: .28; }
   .ruler { display: flex; align-items: center; gap: 8px; padding-inline: 20px; padding-block: 0 8px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .ruler i { display: block; height: 5px; border: 1px solid var(--muted); border-top: 0; }
   @media (max-width: 420px) { .label { flex-direction: column; align-items: stretch; } .ar-btn { justify-content: center; } }
@@ -54,7 +58,13 @@
 </head>
 <body>
 <main class="app">
-  <header><span class="who">이태량</span><span class="what">AR · 벽에 걸어보기</span></header>
+  <header>
+    <span class="who">이태량</span>
+    <nav class="modes" aria-label="보기 방식">
+      <button type="button" id="mode-one" aria-pressed="true">한 점씩</button>
+      <button type="button" id="mode-wall" aria-pressed="false">전시 벽</button>
+    </nav>
+  </header>
   <div class="stage">
     <model-viewer id="mv" alt="캔버스 3D 모델" ar ar-modes="webxr scene-viewer quick-look" ar-placement="wall" ar-scale="fixed"
       camera-controls disable-pan camera-orbit="-12deg 85deg auto" min-camera-orbit="auto 60deg auto" max-camera-orbit="auto 100deg auto"
@@ -65,7 +75,7 @@
       <div class="t"><p class="ko" id="ko"></p><p class="en" id="en"></p><p class="meta" id="meta"></p></div>
       <button class="ar-btn" id="ar-btn" type="button" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7V4h3M18 4h3v3M21 17v3h-3M6 20H3v-3"/><rect x="7" y="8" width="10" height="8"/></svg>
-        벽에 걸어보기
+        <span id="ar-label">벽에 걸어보기</span>
       </button>
     </div>
   </div>
@@ -99,7 +109,11 @@
     b.setAttribute('aria-label', w.ko);
     b.setAttribute('aria-pressed', 'false');
     b.innerHTML = `<img src="img/${w.id}.jpg" alt="" draggable="false" style="width:${(w.w * k).toFixed(1)}px;height:${(w.h * k).toFixed(1)}px">`;
-    b.addEventListener('click', () => select(i));
+    b.addEventListener('click', () => {
+      if (mode === 'one') return select(i);
+      if (chosen.has(i) && chosen.size > 1) chosen.delete(i); else chosen.add(i);
+      showWall();
+    });
     rail.appendChild(b);
   });
 
@@ -109,7 +123,7 @@
   // 아이폰 AR 변환이 텍스처를 1024px로 제한하므로, 1024px에 실 512가닥(2px 간격)이 낼 수 있는 가장 고운 짜임
   const WEAVE_PX = 1024, WEAVE_CELL = 2;
   const WEAVE_CM = 512 * 0.1;                      // 옆면 기준 한 장 = 51.2 cm (실 간격 1 mm)
-  const glbCache = new Map();
+  const glbCache = new Map(); // key → blob URL
   function pad4(n) { return (4 - n % 4) % 4; }
 
   // 한 면을 격자로 만든다. 모서리 근처만 촘촘히 나눠서 라운드가 매끈하게 꺾이도록
@@ -175,22 +189,17 @@
     return weavePromise;
   }
 
-  async function buildGLB(w) {
-    if (glbCache.has(w.id)) return glbCache.get(w.id);
-    const [img, weave] = await Promise.all([
-      fetch(`img/${w.id}.jpg`).then((r) => r.arrayBuffer()).then((b) => new Uint8Array(b)),
-      weaveNormalMap(),
-    ]);
-    const W = w.w / 100, H = w.h / 100, D = DEPTH, half = [W / 2, H / 2, D / 2];
-    const x = half[0], y = half[1], z = half[2];
-    const front = makeFace([0, 0, z], [1, 0, 0], [0, 1, 0], [0, 0, 1], W, H, half, 'image');
-    const sides = merge([
-      makeFace([0, 0, -z], [-1, 0, 0], [0, 1, 0], [0, 0, -1], W, H, half, 'tile'),
-      makeFace([-x, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], D, H, half, 'tile'),
-      makeFace([x, 0, 0], [0, 0, -1], [0, 1, 0], [1, 0, 0], D, H, half, 'tile'),
-      makeFace([0, y, 0], [1, 0, 0], [0, 0, -1], [0, 1, 0], W, D, half, 'tile'),
-      makeFace([0, -y, 0], [1, 0, 0], [0, 0, 1], [0, -1, 0], W, D, half, 'tile'),
-    ]);
+  const imgCache = new Map();
+  function imageBytes(id) {
+    if (!imgCache.has(id)) imgCache.set(id, fetch(`img/${id}.jpg`).then((r) => r.arrayBuffer()).then((b) => new Uint8Array(b)));
+    return imgCache.get(id);
+  }
+
+  // items: [{ w, x, y }] — 각 캔버스의 중심 위치(m). 한 점이면 [{ w, x: 0, y: 0 }]
+  async function buildScene(items, key) {
+    if (glbCache.has(key)) return glbCache.get(key);
+    const weave = await weaveNormalMap();
+    const imgs = await Promise.all(items.map((it) => imageBytes(it.w.id)));
     const chunks = [], views = [], accessors = [];
     let offset = 0;
     const addView = (bytes, target) => {
@@ -215,23 +224,41 @@
           TEXCOORD_0: addAcc(new Float32Array(g.uv), 5126, 'VEC2', n, 34962) },
         indices: addAcc(new Uint16Array(g.idx), 5123, 'SCALAR', g.idx.length, 34963), material };
     };
-    const prims = [prim(front, 0), prim(sides, 1)];
-    const imgView = addView(img), weaveView = addView(weave);
-    // 앞면은 그림 UV(0~1) 그대로: 512가닥이 그림 폭에 펼쳐져 실 간격 약 1.3~2.5 mm, 아주 약하게
-    const weaveOnFront = { index: 1, scale: 0.28 };
+
+    // 텍스처 0 = 짜임, 1.. = 그림. 재질 0 = 캔버스 옆면, 1.. = 그림 앞면
+    const weaveView = addView(weave);
+    const images = [{ bufferView: weaveView, mimeType: 'image/png' }];
+    const textures = [{ source: 0, sampler: 1 }];
+    const materials = [{ name: 'canvas-edge', pbrMetallicRoughness: { baseColorFactor: [0.93, 0.915, 0.88, 1], metallicFactor: 0, roughnessFactor: 1 }, normalTexture: { index: 0, scale: 0.5 } }];
+    const meshes = [], nodes = [];
+    items.forEach((it, k) => {
+      const w = it.w;
+      const W = w.w / 100, H = w.h / 100, D = DEPTH, half = [W / 2, H / 2, D / 2];
+      const x = half[0], y = half[1], z = half[2];
+      const front = makeFace([0, 0, z], [1, 0, 0], [0, 1, 0], [0, 0, 1], W, H, half, 'image');
+      const sides = merge([
+        makeFace([0, 0, -z], [-1, 0, 0], [0, 1, 0], [0, 0, -1], W, H, half, 'tile'),
+        makeFace([-x, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], D, H, half, 'tile'),
+        makeFace([x, 0, 0], [0, 0, -1], [0, 1, 0], [1, 0, 0], D, H, half, 'tile'),
+        makeFace([0, y, 0], [1, 0, 0], [0, 0, -1], [0, 1, 0], W, D, half, 'tile'),
+        makeFace([0, -y, 0], [1, 0, 0], [0, 0, 1], [0, -1, 0], W, D, half, 'tile'),
+      ]);
+      images.push({ bufferView: addView(imgs[k]), mimeType: 'image/jpeg' });
+      textures.push({ source: images.length - 1, sampler: 0 });
+      // 앞면 짜임은 그림 UV(0~1) 그대로: 512가닥이 그림 폭에 펼쳐져 실 간격 약 1.3~2.5 mm, 아주 약하게
+      materials.push({ name: w.id, pbrMetallicRoughness: { baseColorTexture: { index: textures.length - 1 }, metallicFactor: 0, roughnessFactor: 0.92 }, normalTexture: { index: 0, scale: 0.28 } });
+      meshes.push({ name: w.id, primitives: [prim(front, materials.length - 1), prim(sides, 0)] });
+      nodes.push({ mesh: k, name: w.id, translation: [it.x, it.y, 0] });
+    });
     const gltf = {
-      asset: { version: '2.0', generator: 'ar/index.html' }, scene: 0, scenes: [{ nodes: [0] }],
-      nodes: [{ mesh: 0, name: w.id }], meshes: [{ primitives: prims }],
-      materials: [
-        { name: 'painting', pbrMetallicRoughness: { baseColorTexture: { index: 0 }, metallicFactor: 0, roughnessFactor: 0.92 }, normalTexture: weaveOnFront },
-        { name: 'canvas-edge', pbrMetallicRoughness: { baseColorFactor: [0.93, 0.915, 0.88, 1], metallicFactor: 0, roughnessFactor: 1 }, normalTexture: { index: 1, scale: 0.5 } },
-      ],
-      textures: [{ source: 0, sampler: 0 }, { source: 1, sampler: 1 }],
+      asset: { version: '2.0', generator: 'ar/index.html' }, scene: 0,
+      scenes: [{ nodes: [nodes.length] }],
+      nodes: [...nodes, { name: 'exhibition', children: nodes.map((_, k) => k) }],
+      meshes, materials, textures, images,
       samplers: [
         { magFilter: 9729, minFilter: 9987, wrapS: 33071, wrapT: 33071 },
         { magFilter: 9729, minFilter: 9987, wrapS: 10497, wrapT: 10497 },
       ],
-      images: [{ bufferView: imgView, mimeType: 'image/jpeg' }, { bufferView: weaveView, mimeType: 'image/png' }],
       bufferViews: views, accessors, buffers: [{ byteLength: offset }],
     };
     let json = new TextEncoder().encode(JSON.stringify(gltf));
@@ -244,32 +271,75 @@
     dv.setUint32(o, offset, true); dv.setUint32(o + 4, 0x004E4942, true); o += 8;
     for (const c of chunks) { out.set(c, o); o += c.byteLength; }
     const url = URL.createObjectURL(new Blob([out], { type: 'model/gltf-binary' }));
-    glbCache.set(w.id, url);
+    glbCache.set(key, url);
     return url;
   }
 
-  let cur = -1;
+  // 갤러리식 일렬 걸기: 모든 그림의 중심을 같은 높이에, 사이 간격 45 cm
+  const GAP = 0.45;
+  function wallLayout(list) {
+    const total = list.reduce((s, w) => s + w.w / 100, 0) + GAP * (list.length - 1);
+    let x = -total / 2;
+    const items = list.map((w) => { const it = { w, x: x + w.w / 200, y: 0 }; x += w.w / 100 + GAP; return it; });
+    return { items, width: total, height: Math.max(...list.map((w) => w.h / 100)) };
+  }
+
+  let mode = 'one', cur = -1, token = 0;
+  const chosen = new Set(WORKS.map((_, i) => i)); // 전시 벽에 포함된 작품
+
   async function select(i) {
-    if (i === cur) return;
+    if (mode === 'one' && i === cur) return;
     cur = i;
+    const t = ++token;
     const w = WORKS[i];
-    const url = await buildGLB(w);
-    if (cur !== i) return;
+    const url = await buildScene([{ w, x: 0, y: 0 }], w.id);
+    if (t !== token) return;
     mv.src = url;
     mv.alt = `${w.ko}, ${w.w} × ${w.h} cm 캔버스`;
     $('ko').textContent = w.ko;
     $('en').textContent = w.en;
     $('meta').innerHTML = `${w.year} · oil on canvas<br><b>${w.h} × ${w.w} cm</b> · ${w.ho} · 두께 3.5 cm`;
+    $('ar-label').textContent = '벽에 걸어보기';
     rail.querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
     rail.children[i].scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }
+
+  async function showWall() {
+    const t = ++token;
+    const idx = [...chosen].sort((a, b) => a - b);
+    const { items, width, height } = wallLayout(idx.map((i) => WORKS[i]));
+    const url = await buildScene(items, 'wall:' + idx.join(','));
+    if (t !== token) return;
+    mv.src = url;
+    mv.alt = `작품 ${idx.length}점을 한 벽에 건 전시, 가로 ${width.toFixed(1)} m`;
+    $('ko').textContent = `전시 벽 · ${idx.length}점`;
+    $('en').textContent = '작품을 눌러 빼거나 넣으세요';
+    $('meta').innerHTML = `가로 <b>${width.toFixed(1)} m</b> · 가장 큰 그림 ${(height * 100).toFixed(0)} cm · 간격 ${GAP * 100} cm<br>그림 중심이 눈높이(약 150 cm)에 오도록 벽을 탭하세요`;
+    $('ar-label').textContent = '전시 벽 세우기';
+    rail.querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-pressed', String(chosen.has(j))));
+  }
+
+  function setMode(m) {
+    mode = m;
+    $('mode-one').setAttribute('aria-pressed', String(m === 'one'));
+    $('mode-wall').setAttribute('aria-pressed', String(m === 'wall'));
+    rail.classList.toggle('multi', m === 'wall');
+    rail.setAttribute('aria-label', m === 'wall' ? '전시 벽에 넣을 작품 (여러 개 선택)' : '작품 선택');
+    updateNote();
+    if (m === 'wall') showWall();
+    else { const i = cur < 0 ? 2 : cur; cur = -1; select(i); }
+  }
+  $('mode-one').addEventListener('click', () => mode !== 'one' && setMode('one'));
+  $('mode-wall').addEventListener('click', () => mode !== 'wall' && setMode('wall'));
 
   // 이 기기에서 AR이 되는지에 따라 안내문
   function updateNote() {
     const inFrame = window.top !== window.self;
     arBtn.hidden = !(mv.canActivateAR && !inFrame);
     if (mv.canActivateAR && !inFrame) {
-      note.innerHTML = '<b>벽에 걸어보기</b>를 누르고 카메라를 벽에 비추면 그림이 실제 크기로 걸립니다. 손가락으로 끌어 자리를 옮길 수 있어요.';
+      note.innerHTML = mode === 'wall'
+        ? '<b>전시 벽 세우기</b>를 누르고 벽을 탭하면 고른 작품이 실제 크기와 간격으로 한 번에 걸립니다. 뒤로 물러나 벽 전체를 둘러보세요.'
+        : '<b>벽에 걸어보기</b>를 누르고 카메라를 벽에 비추면 그림이 실제 크기로 걸립니다. 손가락으로 끌어 자리를 옮길 수 있어요.';
     } else if (inFrame) {
       note.innerHTML = '지금은 미리보기 화면 안이라 카메라 AR이 열리지 않습니다. 실제 사이트 주소(또는 QR)로 폰에서 열면 <b>벽에 걸어보기</b>가 작동합니다. 여기서는 드래그로 캔버스를 돌려 보세요.';
     } else {
@@ -277,8 +347,12 @@
     }
   }
   mv.addEventListener('load', updateNote);
-  const fromHash = WORKS.findIndex((w) => w.id === location.hash.replace('#', ''));
-  customElements.whenDefined('model-viewer').then(() => { updateNote(); select(fromHash >= 0 ? fromHash : 2); });
+  const hash = location.hash.replace('#', '');
+  const fromHash = WORKS.findIndex((w) => w.id === hash);
+  customElements.whenDefined('model-viewer').then(() => {
+    if (hash === 'wall') setMode('wall');
+    else { updateNote(); select(fromHash >= 0 ? fromHash : 2); }
+  });
 })();
 </script>
 </body>
