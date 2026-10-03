@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이태량 AR 전시 초대장</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;400;600&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<style>
+  /* 100 × 150 mm 엽서. 위는 갤러리 벽에 걸린 그림, 아래는 흰 종이에 이름·소개·QR 두 개 */
+  @page { size: 100mm 150mm; margin: 0; }
+  :root {
+    --white: #ffffff; --wall: #efefec; --ink: #141414; --muted: #6f6f68; --rule: #dcdcd6;
+    --f-serif: 'Nanum Myeongjo', 'AppleMyungjo', 'Batang', serif;
+    --f-sans: 'Gothic A1', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100mm; height: 150mm; background: var(--white); color: var(--ink); font-family: var(--f-sans); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card { width: 100mm; height: 150mm; display: flex; flex-direction: column; overflow: hidden; }
+
+  .wall { background: var(--wall); padding: 6mm 7mm 5mm; display: grid; gap: 4.2mm; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 6.2pt; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+  .top b { font-weight: 600; color: var(--ink); }
+  .art { display: grid; justify-items: center; gap: 2.4mm; }
+  .art img { height: 64mm; width: auto; display: block; box-shadow: 0 .3mm .6mm rgba(0,0,0,.18), 0 2.2mm 4mm rgba(0,0,0,.14); }
+  .art figcaption { font-size: 5.6pt; color: var(--muted); letter-spacing: .02em; }
+
+  .paper { flex: 1; padding: 5mm 7mm 5.5mm; display: flex; flex-direction: column; }
+  .name { display: flex; align-items: baseline; gap: 3mm; }
+  .name h1 { font-family: var(--f-serif); font-weight: 800; font-size: 25pt; letter-spacing: -0.03em; line-height: 1; }
+  .name span { font-size: 6.4pt; letter-spacing: .3em; color: var(--muted); }
+  .title { margin-top: 1.6mm; font-size: 7.4pt; letter-spacing: .02em; }
+  .title em { font-style: normal; color: var(--muted); }
+  .bio { margin-top: 2.6mm; font-size: 6.6pt; line-height: 1.75; font-weight: 300; word-break: keep-all; }
+
+  .qrs { margin-top: auto; padding-top: 3mm; border-top: .2mm solid var(--rule); display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .qrs > div { display: grid; grid-template-columns: 17mm 1fr; gap: 2.4mm; align-items: center; }
+  .qr { width: 17mm; height: 17mm; display: block; }
+  .qrs b { display: block; font-family: var(--f-serif); font-weight: 700; font-size: 8pt; letter-spacing: -0.01em; }
+  .qrs small { display: block; margin-top: .8mm; font-size: 5.6pt; line-height: 1.5; color: var(--muted); word-break: keep-all; }
+  .foot { margin-top: 3mm; font-size: 5.8pt; color: var(--muted); letter-spacing: .02em; }
+  .foot b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<article class="card">
+  <section class="wall">
+    <p class="top"><span><b>AR Exhibition</b> · 이달의 전시</span><span>2026. 10</span></p>
+    <figure class="art">
+      <img src="w3.jpg" alt="이태량, 순간의 함몰, 2026, 캔버스에 유채, 130.3 × 162.2 cm">
+      <figcaption>순간의 함몰 depression of the moment, 2026, oil on canvas, 130.3 × 162.2 cm</figcaption>
+    </figure>
+  </section>
+  <section class="paper">
+    <div class="name"><h1>이태량</h1><span>TAERYANG LEE</span></div>
+    <p class="title">Paintings 2025–2026 <em>· 유화 8점</em></p>
+    <p class="bio">낙서처럼 보이는 자유로운 선으로 ‘그림’의 본질과 언어의 한계를 묻는 추상화가. 문자와 부호를 긋고 지우고 덧칠하며 「존재와 사고」, 「명제형식」, 「헤르메틱」 연작을 이어 왔습니다.</p>
+    <div class="qrs">
+      <div><svg class="qr" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path stroke="#141414" d="M0 0.5h7m3 0h3m3 0h5m2 0h1m2 0h7M0 1.5h1m5 0h1m2 0h2m4 0h3m2 0h2m4 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m2 0h4m1 0h1m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h2m4 0h3m1 0h2m3 0h1m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h6m8 0h1m1 0h1m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1M0 8.5h1m1 0h5m3 0h1m1 0h2m2 0h2m4 0h1m1 0h1m1 0h5M3 9.5h3m1 0h1m1 0h3m1 0h1m2 0h6m1 0h1m2 0h2m1 0h2m1 0h1M5 10.5h5m1 0h5m1 0h1m2 0h3m1 0h1m3 0h1m1 0h1M0 11.5h3m1 0h1m2 0h3m1 0h3m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m1 0h5M3 12.5h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m2 0h2m1 0h2M3 13.5h1m3 0h1m2 0h4m1 0h1m2 0h6m2 0h1m2 0h1m1 0h2M0 14.5h1m4 0h2m1 0h2m3 0h4m3 0h1m1 0h1m2 0h2m1 0h2m1 0h1M1 15.5h2m7 0h1m1 0h1m2 0h1m5 0h1m3 0h2m1 0h3M0 16.5h3m1 0h3m1 0h3m1 0h2m1 0h1m1 0h2m3 0h4m1 0h3m2 0h1M0 17.5h1m1 0h2m7 0h4m1 0h1m1 0h4m1 0h1m1 0h3m1 0h2m1 0h1M3 18.5h2m1 0h2m4 0h4m2 0h1m1 0h1m1 0h1m4 0h2m1 0h2M1 19.5h3m3 0h2m2 0h2m2 0h2m3 0h3m2 0h1m1 0h5M2 20.5h6m6 0h2m2 0h2m2 0h1m1 0h2m1 0h3m2 0h1M0 21.5h2m1 0h1m4 0h2m1 0h1m1 0h5m1 0h2m2 0h2m1 0h1m3 0h1m1 0h1M0 22.5h1m2 0h4m1 0h1m1 0h3m1 0h1m2 0h1m2 0h2m3 0h1m1 0h2m1 0h2M0 23.5h1m1 0h2m1 0h1m1 0h1m6 0h1m1 0h1m1 0h5m1 0h1m3 0h4M0 24.5h1m1 0h1m1 0h4m1 0h1m2 0h3m1 0h2m1 0h1m2 0h1m1 0h5m2 0h1M8 25.5h1m1 0h1m1 0h3m1 0h4m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1M0 26.5h7m2 0h3m2 0h4m2 0h5m1 0h1m1 0h1m1 0h2M0 27.5h1m5 0h1m1 0h1m6 0h1m1 0h2m1 0h5m3 0h3m1 0h1M0 28.5h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m2 0h1m1 0h6m1 0h2M0 29.5h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m2 0h2m2 0h1m1 0h2m2 0h1m1 0h3M0 30.5h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h3m3 0h2m3 0h2m1 0h2M0 31.5h1m5 0h1m2 0h1m1 0h1m3 0h1m3 0h1m1 0h1m3 0h2m1 0h3M0 32.5h7m1 0h3m1 0h1m1 0h2m1 0h1m4 0h4m1 0h1m3 0h1"/></svg>
+<p><b>AR 전시</b><small>우리 집 벽에 실제 크기로 걸어 보기</small></p></div>
+      <div><svg class="qr" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path stroke="#141414" d="M0 0.5h7m2 0h2m5 0h5m2 0h1m2 0h7M0 1.5h1m5 0h1m2 0h1m5 0h3m2 0h2m4 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m2 0h4m1 0h1m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h1m1 0h1m3 0h3m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h2m1 0h3m6 0h1m1 0h1m1 0h1m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m7 0h1m1 0h4m1 0h1M0 8.5h1m1 0h5m3 0h1m1 0h2m2 0h2m1 0h1m2 0h1m1 0h1m1 0h5M0 9.5h1m3 0h1m3 0h2m1 0h3m2 0h6m1 0h1m2 0h2m1 0h2m1 0h1M0 10.5h2m1 0h1m2 0h4m1 0h1m1 0h3m1 0h2m1 0h3m1 0h1m3 0h1m1 0h1M0 11.5h1m1 0h1m1 0h2m2 0h1m1 0h4m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h5M0 12.5h1m1 0h1m2 0h2m3 0h3m1 0h1m1 0h3m3 0h2m1 0h1m2 0h2m1 0h2M1 13.5h1m3 0h1m1 0h3m5 0h1m2 0h6m2 0h1m2 0h1m1 0h2M1 14.5h4m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m5 0h1m2 0h2m1 0h2m1 0h1M0 15.5h1m8 0h1m1 0h2m1 0h2m3 0h1m1 0h1m3 0h2m1 0h3M0 16.5h1m2 0h1m1 0h6m1 0h1m1 0h2m1 0h2m3 0h4m1 0h3m2 0h1M0 17.5h1m4 0h1m2 0h4m1 0h1m2 0h6m1 0h1m1 0h3m1 0h2m1 0h1M0 18.5h1m2 0h1m2 0h3m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m4 0h2m1 0h2M0 19.5h1m3 0h1m5 0h1m3 0h3m3 0h3m2 0h1m1 0h5M3 20.5h2m1 0h1m3 0h1m1 0h1m1 0h2m2 0h2m2 0h1m1 0h2m1 0h3m2 0h1M0 21.5h2m2 0h1m7 0h2m1 0h6m2 0h2m1 0h1m3 0h1m1 0h1M0 22.5h1m1 0h1m1 0h3m3 0h1m3 0h1m2 0h1m2 0h2m3 0h1m1 0h2m1 0h2M0 23.5h1m1 0h4m2 0h1m2 0h1m4 0h1m1 0h5m1 0h1m3 0h5M0 24.5h1m1 0h2m1 0h2m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m2 0h1m1 0h5m2 0h1M8 25.5h4m2 0h1m1 0h4m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1M0 26.5h7m2 0h1m1 0h1m3 0h3m2 0h5m1 0h1m1 0h1m1 0h2M0 27.5h1m5 0h1m1 0h1m1 0h2m2 0h2m1 0h2m1 0h5m3 0h3m1 0h1M0 28.5h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m2 0h1m2 0h1m2 0h1m1 0h6m1 0h2M0 29.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m2 0h1m1 0h2m2 0h1m1 0h3M0 30.5h1m1 0h3m1 0h1m1 0h5m2 0h3m3 0h2m3 0h2m1 0h2M0 31.5h1m5 0h1m7 0h2m3 0h1m1 0h1m3 0h2m1 0h3M0 32.5h7m1 0h1m5 0h2m1 0h1m4 0h4m1 0h1m3 0h1"/></svg>
+<p><b>전자책 작품집</b><small>작가 소개와 작품 8점을 책처럼 넘겨 보기</small></p></div>
+    </div>
+    <p class="foot">전시장은 <b>당신의 벽</b>입니다. QR을 찍고 휴대폰을 벽에 비춰 보세요.</p>
+  </section>
+</article>
+</body>
+</html>

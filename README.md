@@ -59,3 +59,10 @@ open index.html
 
 - 작품 추가: `book/img/`에 이미지, `book/index.html`의 `WORKS`에 한 줄. AR 페이지의 `WORKS`에도 같은 줄을 더하면 됩니다.
 - `qr/` — 인쇄용 QR코드(전자책 / AR). `main` 브랜치가 GitHub Pages로 배포되므로 합쳐진 뒤부터 주소가 살아납니다.
+
+## 초대장 (`/invite`)
+100 × 150 mm 엽서형 AR 전시 초대장. 그림, 작가 이름과 짧은 소개, QR 두 개(AR 전시 / 전자책)가 들어 있습니다.
+
+- `invite/invite.pdf` — 인쇄용(재단 여백 없음, 100 × 150 mm)
+- `invite/invite.png` — 카카오톡·문자 공유용(1181 × 1772 px, 300 dpi)
+- `invite/build.js` — `index.html`을 만들고 위 두 파일로 렌더링. 날짜·문구를 바꾼 뒤 다시 실행하면 됩니다.
