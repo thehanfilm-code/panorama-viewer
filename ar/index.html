@@ -10,7 +10,7 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   [hidden] { display: none !important; }
-  /* Layout: 흰 갤러리 벽. 위에 3D 캔버스 한 점, 아래에 작품 선택 줄. 흰 갤러리 단일 테마. */
+  /* Layout: 흰 갤러리 벽. 위에 3D 캔버스, 아래에 작품 선택 줄. '배치하기'는 실제 치수의 벽 도면 편집기. 흰 갤러리 단일 테마. */
   :root {
     --white: #ffffff; --wall: #f3f3f1; --ink: #141414; --muted: #77776f; --faint: #b5b5ae; --rule: #e3e3de;
     --f-serif: 'Nanum Myeongjo', 'AppleMyungjo', 'Batang', serif;
@@ -52,6 +52,48 @@
   .rail.multi button[aria-pressed="false"] img { opacity: .28; }
   .ruler { display: flex; align-items: center; gap: 8px; padding-inline: 20px; padding-block: 0 8px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .ruler i { display: block; height: 5px; border: 1px solid var(--muted); border-top: 0; }
+  /* 전시 벽: 어떤 배치를 볼지 */
+  .wallbar { display: flex; gap: 6px; overflow-x: auto; padding-inline: 20px; padding-block: 10px; border-bottom: 1px solid var(--rule); background: var(--white); scrollbar-width: none; }
+  .wallbar::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; padding: 6px 11px; border: 1px solid var(--rule); background: var(--white); font-size: 11px; letter-spacing: .03em; cursor: pointer; white-space: nowrap; }
+  .chip[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--white); }
+  .chip.add { color: var(--muted); border-style: dashed; }
+
+  /* ---------- 배치 편집기 ---------- */
+  .editor { flex: 1; min-height: 0; overflow-y: auto; background: var(--white); display: flex; flex-direction: column; }
+  .editor > * { flex-shrink: 0; }
+  .ed-walls { display: grid; gap: 10px; padding-inline: 20px; padding-block: 12px 10px; border-bottom: 1px solid var(--rule); }
+  .ed-walls .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .ed-size { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 11px; color: var(--muted); }
+  .ed-size label { display: inline-flex; align-items: center; gap: 6px; }
+  .ed-size input, .ed-info input { width: 68px; padding: 5px 6px; border: 1px solid var(--rule); font: inherit; font-size: 12px; color: var(--ink); font-variant-numeric: tabular-nums; background: var(--white); }
+  .ed-size input:focus, .ed-info input:focus { outline: 1px solid var(--ink); border-color: var(--ink); }
+  .text-btn { background: none; border: 0; padding: 4px 2px; font-size: 11px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .text-btn:hover { color: var(--ink); }
+  .ed-canvas { background: var(--wall); padding-inline: 8px; padding-block: 10px; }
+  #wall-svg { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #wall-svg .item { cursor: grab; }
+  #wall-svg .item:active { cursor: grabbing; }
+  .ed-info { padding-inline: 20px; padding-block: 12px; border-bottom: 1px solid var(--rule); display: grid; gap: 8px; font-size: 11.5px; line-height: 1.6; color: var(--muted); min-height: 92px; }
+  .ed-info b { color: var(--ink); font-weight: 600; }
+  .ed-info .t { font-family: var(--f-serif); font-weight: 700; font-size: 15px; color: var(--ink); }
+  .ed-info .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+  .ed-info .row label { display: inline-flex; align-items: center; gap: 6px; }
+  .ed-info .warn { color: #a3401f; }
+  .ed-info .tools { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ghost-btn { padding: 7px 11px; border: 1px solid var(--rule); background: var(--white); font-size: 11px; cursor: pointer; }
+  .ghost-btn:hover { border-color: var(--ink); }
+  .ed-tray-label { padding-inline: 20px; padding-block: 12px 0; font-size: 10px; letter-spacing: .12em; color: var(--muted); }
+  .ed-tray { display: flex; gap: 8px; overflow-x: auto; padding-inline: 20px; padding-block: 8px 12px; scrollbar-width: none; }
+  .ed-tray::-webkit-scrollbar { display: none; }
+  .ed-tray button { position: relative; flex: 0 0 auto; width: 56px; height: 72px; padding: 0; border: 1px solid var(--rule); background: var(--white); cursor: pointer; display: grid; place-items: center; }
+  .ed-tray button img { display: block; object-fit: cover; }
+  .ed-tray button[data-state="here"] { border-color: var(--ink); }
+  .ed-tray button[data-state="none"] img { opacity: .55; }
+  .ed-tray button i { position: absolute; top: 3px; right: 3px; min-width: 15px; height: 15px; padding: 0 3px; font-style: normal; font-size: 9px; line-height: 15px; text-align: center; background: var(--ink); color: var(--white); }
+  .ed-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-inline: 20px; padding-block: 4px 10px; }
+  .ed-hint { padding-inline: 20px; padding-block: 0 calc(16px + env(safe-area-inset-bottom, 0px)); font-size: 10.5px; line-height: 1.6; color: var(--muted); word-break: keep-all; }
+  .ed-hint code { font-size: 10px; word-break: break-all; color: var(--ink); }
   @media (max-width: 420px) { .label { flex-direction: column; align-items: stretch; } .ar-btn { justify-content: center; } }
   @media (prefers-reduced-motion: reduce) { .rail button img { transition: none; } }
 </style>
@@ -63,8 +105,10 @@
     <nav class="modes" aria-label="보기 방식">
       <button type="button" id="mode-one" aria-pressed="true">한 점씩</button>
       <button type="button" id="mode-wall" aria-pressed="false">전시 벽</button>
+      <button type="button" id="mode-edit" aria-pressed="false">배치하기</button>
     </nav>
   </header>
+  <nav class="wallbar" id="wallbar" aria-label="어떤 배치를 볼지" hidden></nav>
   <div class="stage">
     <model-viewer id="mv" alt="캔버스 3D 모델" ar ar-modes="webxr scene-viewer quick-look" ar-placement="wall" ar-scale="fixed"
       camera-controls disable-pan camera-orbit="-12deg 85deg auto" min-camera-orbit="auto 60deg auto" max-camera-orbit="auto 100deg auto"
@@ -79,8 +123,29 @@
       </button>
     </div>
   </div>
-  <div class="ruler"><i id="ruler"></i><span>50 cm · 아래 그림들은 같은 축척</span></div>
+  <div class="ruler" id="ruler-row"><i id="ruler"></i><span>50 cm · 아래 그림들은 같은 축척</span></div>
   <nav class="rail" id="rail" aria-label="작품 선택"></nav>
+
+  <section class="editor" id="editor" aria-label="배치 편집" hidden>
+    <div class="ed-walls">
+      <div class="chips" id="wall-chips"></div>
+      <div class="ed-size">
+        <label>벽 가로 <input id="wall-w" type="number" inputmode="numeric" min="100" max="3000" step="1"> cm</label>
+        <label>높이 <input id="wall-h" type="number" inputmode="numeric" min="150" max="1000" step="1"> cm</label>
+        <button class="text-btn" id="wall-del" type="button">이 벽 삭제</button>
+      </div>
+    </div>
+    <div class="ed-canvas"><svg id="wall-svg" role="img" aria-label="벽 도면. 그림을 끌어 옮기세요."></svg></div>
+    <div class="ed-info" id="ed-info" aria-live="polite"></div>
+    <p class="ed-tray-label">작품 · 누르면 이 벽에 걸고, 걸린 그림은 선택됩니다</p>
+    <div class="ed-tray" id="ed-tray"></div>
+    <div class="ed-actions">
+      <button class="ar-btn" id="ed-ar" type="button">이 벽을 AR로 보기</button>
+      <button class="ghost-btn" id="ed-share" type="button">배치 링크 복사</button>
+      <button class="text-btn" id="ed-reset" type="button">처음부터</button>
+    </div>
+    <p class="ed-hint" id="ed-hint"></p>
+  </section>
 </main>
 
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
@@ -111,6 +176,7 @@
     b.innerHTML = `<img src="img/${w.id}.jpg" alt="" draggable="false" style="width:${(w.w * k).toFixed(1)}px;height:${(w.h * k).toFixed(1)}px">`;
     b.addEventListener('click', () => {
       if (mode === 'one') return select(i);
+      if (wallView !== 'line') return;
       if (chosen.has(i) && chosen.size > 1) chosen.delete(i); else chosen.add(i);
       showWall();
     });
@@ -284,6 +350,307 @@
     return { items, width: total, height: Math.max(...list.map((w) => w.h / 100)) };
   }
 
+
+  // ================= 배치(내가 정한 자리) =================
+  // layout = { walls: [{ w, h, items: [{ id, x, y }] }] } — cm. x: 벽 왼쪽 끝 → 그림 중심, y: 바닥 → 그림 중심
+  const BY_ID = Object.fromEntries(WORKS.map((w) => [w.id, w]));
+  const LS_KEY = 'taeryang-ar-layout-v1';
+  const EYE = 150;               // 갤러리 눈높이(그림 중심)
+  const DEFAULT_LAYOUT = null;   // 큐레이터가 확정한 배치를 여기에 넣으면 QR로 들어온 모두가 이 배치를 봅니다
+  const wallName = (i) => '벽 ' + String.fromCharCode(65 + i);
+  const r1 = (v) => Math.round(v * 10) / 10;
+
+  function exampleLayout() {
+    const ids = ['w1', 'w3', 'w6', 'w8'], W = 600;
+    const total = ids.reduce((s, id) => s + BY_ID[id].w, 0) + 45 * (ids.length - 1);
+    let x = (W - total) / 2;
+    const items = ids.map((id) => { const it = { id, x: r1(x + BY_ID[id].w / 2), y: EYE }; x += BY_ID[id].w + 45; return it; });
+    return { walls: [{ w: W, h: 280, items }] };
+  }
+  function encodeLayout(l) {
+    // 벽은 '-', 벽 안 칸은 '~', 그림 칸은 '_' (소수점 '.'과 겹치지 않게). 예: v1-600~280~3_300_150~1_120.5_150
+    return 'v1-' + l.walls.map((wl) => [wl.w, wl.h, ...wl.items.map((it) => `${it.id.slice(1)}_${r1(it.x)}_${r1(it.y)}`)].join('~')).join('-');
+  }
+  function decodeLayout(str) {
+    try {
+      const parts = String(str).split('-');
+      if (parts.shift() !== 'v1' || !parts.length) return null;
+      const seen = new Set();
+      const walls = parts.map((p) => {
+        const [w, h, ...its] = p.split('~');
+        const wl = { w: Math.min(3000, Math.max(100, +w || 600)), h: Math.min(1000, Math.max(150, +h || 280)), items: [] };
+        its.forEach((t) => {
+          const [n, x, y] = t.split('_'); const id = 'w' + n;
+          if (!BY_ID[id] || seen.has(id) || !isFinite(+x) || !isFinite(+y)) return;
+          seen.add(id); wl.items.push({ id, x: +x, y: +y });
+        });
+        return wl;
+      });
+      return { walls };
+    } catch (e) { return null; }
+  }
+  function saveLayout() { try { localStorage.setItem(LS_KEY, encodeLayout(layout)); } catch (e) {} }
+  function loadLayout() {
+    let q = null;
+    try { q = new URLSearchParams(location.search).get('layout'); } catch (e) {}
+    if (q) { const l = decodeLayout(q); if (l) { layoutSource = 'link'; try { localStorage.setItem(LS_KEY, q); } catch (e) {} return l; } }
+    try { const l = decodeLayout(localStorage.getItem(LS_KEY)); if (l) { layoutSource = 'saved'; return l; } } catch (e) {}
+    if (DEFAULT_LAYOUT) { const l = decodeLayout(DEFAULT_LAYOUT); if (l) { layoutSource = 'curated'; return l; } }
+    layoutSource = 'example';
+    return exampleLayout();
+  }
+  let layoutSource = 'example';
+  let layout = loadLayout();
+  let edWall = 0, selId = null, wallView = 'line'; // wallView: 'line' | 벽 번호
+
+  function bboxOf(items) {
+    let L = Infinity, R = -Infinity, B = Infinity, T = -Infinity;
+    items.forEach((it) => { const w = BY_ID[it.id]; L = Math.min(L, it.x - w.w / 2); R = Math.max(R, it.x + w.w / 2); B = Math.min(B, it.y - w.h / 2); T = Math.max(T, it.y + w.h / 2); });
+    return { L, R, B, T, cx: (L + R) / 2, cy: (B + T) / 2, w: R - L, h: T - B };
+  }
+  function wallOf(id) { return layout.walls.findIndex((wl) => wl.items.some((it) => it.id === id)); }
+
+  // ---------- 도면 그리기 ----------
+  const svg = $('wall-svg'), NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  let gItems = null, gGuides = null, gPoint = null;
+  function renderWall() {
+    const wl = layout.walls[edWall], W = wl.w, H = wl.h;
+    const fs = Math.max(W, H) / 42, m = fs * 3.2;
+    svg.setAttribute('viewBox', `${-m} ${-fs * 1.6} ${W + m + fs} ${H + fs * 4.2}`);
+    svg.innerHTML = '';
+    el('rect', { x: 0, y: 0, width: W, height: H, fill: '#fafaf8', stroke: '#d6d6cf', 'stroke-width': fs * 0.06 }, svg);
+    el('line', { x1: -m * 0.4, y1: H, x2: W + fs * 0.6, y2: H, stroke: '#141414', 'stroke-width': fs * 0.14 }, svg);
+    for (let y = 0; y <= H; y += 50) {
+      el('line', { x1: -fs * 0.7, y1: H - y, x2: 0, y2: H - y, stroke: '#9a9a92', 'stroke-width': fs * 0.06 }, svg);
+      const t = el('text', { x: -fs, y: H - y + fs * 0.35, 'font-size': fs * 0.9, 'text-anchor': 'end', fill: '#8a8a82' }, svg); t.textContent = y;
+    }
+    el('line', { x1: 0, y1: H - EYE, x2: W, y2: H - EYE, stroke: '#b5b5ae', 'stroke-width': fs * 0.07, 'stroke-dasharray': `${fs * 0.5} ${fs * 0.4}` }, svg);
+    const eye = el('text', { x: W - fs * 0.3, y: H - EYE - fs * 0.4, 'font-size': fs * 0.85, 'text-anchor': 'end', fill: '#8a8a82' }, svg); eye.textContent = '눈높이 150';
+    const wt = el('text', { x: W / 2, y: H + fs * 2.6, 'font-size': fs * 0.95, 'text-anchor': 'middle', fill: '#6f6f68' }, svg); wt.textContent = `${wallName(edWall)} · 가로 ${W} cm × 높이 ${H} cm`;
+    gGuides = el('g', {}, svg);
+    gItems = el('g', {}, svg);
+    wl.items.forEach((it) => {
+      const w = BY_ID[it.id];
+      const g = el('g', { class: 'item', 'data-id': it.id, tabindex: 0, role: 'button', 'aria-label': w.ko }, gItems);
+      el('rect', { x: fs * 0.12, y: fs * 0.22, width: w.w, height: w.h, fill: 'rgba(0,0,0,.14)' }, g);
+      el('image', { href: `img/${it.id}.jpg`, width: w.w, height: w.h, preserveAspectRatio: 'none' }, g);
+      el('rect', { class: 'sel', x: -fs * 0.15, y: -fs * 0.15, width: w.w + fs * 0.3, height: w.h + fs * 0.3, fill: 'none', stroke: '#141414', 'stroke-width': fs * 0.14, visibility: 'hidden' }, g);
+      placeG(g, it);
+    });
+    gPoint = el('g', { 'pointer-events': 'none' }, svg);
+    renderPoint(); renderSelection();
+  }
+  function placeG(g, it) { const w = BY_ID[it.id], H = layout.walls[edWall].h; g.setAttribute('transform', `translate(${it.x - w.w / 2} ${H - it.y - w.h / 2})`); }
+  function renderSelection() { gItems && gItems.querySelectorAll('.item').forEach((g) => g.querySelector('.sel').setAttribute('visibility', g.dataset.id === selId ? 'visible' : 'hidden')); }
+  function renderPoint() {
+    gPoint.innerHTML = '';
+    const wl = layout.walls[edWall]; if (!wl.items.length) return;
+    const bb = bboxOf(wl.items), H = wl.h, fs = Math.max(wl.w, H) / 42;
+    const x = bb.cx, y = H - bb.cy;
+    el('circle', { cx: x, cy: y, r: fs * 0.55, fill: 'none', stroke: '#141414', 'stroke-width': fs * 0.1 }, gPoint);
+    el('line', { x1: x - fs, y1: y, x2: x + fs, y2: y, stroke: '#141414', 'stroke-width': fs * 0.08 }, gPoint);
+    el('line', { x1: x, y1: y - fs, x2: x, y2: y + fs, stroke: '#141414', 'stroke-width': fs * 0.08 }, gPoint);
+  }
+  function renderGuides(lines) {
+    gGuides.innerHTML = '';
+    const wl = layout.walls[edWall], fs = Math.max(wl.w, wl.h) / 42;
+    lines.forEach((l) => el('line', l.x !== undefined
+      ? { x1: l.x, y1: 0, x2: l.x, y2: wl.h, stroke: '#c0485c', 'stroke-width': fs * 0.08 }
+      : { x1: 0, y1: wl.h - l.y, x2: wl.w, y2: wl.h - l.y, stroke: '#c0485c', 'stroke-width': fs * 0.08 }, gGuides));
+  }
+
+  // ---------- 끌기 + 붙기 ----------
+  const SNAP = 4, GAP_SNAP = 45;
+  function snap(id, x, y) {
+    const wl = layout.walls[edWall], me = BY_ID[id], hw = me.w / 2, hh = me.h / 2, guides = [];
+    const others = wl.items.filter((o) => o.id !== id).map((o) => ({ o, w: BY_ID[o.id] }));
+    let by = null, bdy = SNAP;
+    const tryY = (line, off) => { const c = line - off; const d = Math.abs(c - y); if (d < bdy) { bdy = d; by = { c, line }; } };
+    tryY(EYE, 0);
+    others.forEach(({ o, w }) => { tryY(o.y, 0); tryY(o.y - w.h / 2, -hh); tryY(o.y + w.h / 2, hh); });
+    let bx = null, bdx = SNAP;
+    const tryX = (line, off, show = line) => { const c = line - off; const d = Math.abs(c - x); if (d < bdx) { bdx = d; bx = { c, line: show }; } };
+    tryX(wl.w / 2, 0);
+    others.forEach(({ o, w }) => {
+      tryX(o.x, 0); tryX(o.x - w.w / 2, -hw); tryX(o.x + w.w / 2, hw);
+      tryX(o.x + w.w / 2 + GAP_SNAP, -hw, null); // 오른쪽 이웃과 45 cm
+      tryX(o.x - w.w / 2 - GAP_SNAP, hw, null);  // 왼쪽 이웃과 45 cm
+    });
+    if (by) { y = by.c; guides.push({ y: by.line }); }
+    if (bx) { x = bx.c; if (bx.line !== null) guides.push({ x: bx.line }); }
+    x = Math.min(wl.w - hw, Math.max(hw, x));
+    y = Math.min(wl.h - hh, Math.max(hh, y));
+    return { x: r1(x), y: r1(y), guides };
+  }
+  let drag = null;
+  function svgPoint(e) { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const p = pt.matrixTransform(svg.getScreenCTM().inverse()); return { x: p.x, y: layout.walls[edWall].h - p.y }; }
+  svg.addEventListener('pointerdown', (e) => {
+    const g = e.target.closest('.item');
+    if (!g) { selId = null; renderSelection(); renderInfo(); return; }
+    const it = layout.walls[edWall].items.find((t) => t.id === g.dataset.id);
+    selId = it.id; renderSelection();
+    const p = svgPoint(e);
+    drag = { id: e.pointerId, it, g, dx: it.x - p.x, dy: it.y - p.y };
+    svg.setPointerCapture(e.pointerId);
+    gItems.appendChild(g); // 맨 위로
+    renderInfo();
+  });
+  svg.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const p = svgPoint(e);
+    const s = snap(drag.it.id, p.x + drag.dx, p.y + drag.dy);
+    drag.it.x = s.x; drag.it.y = s.y;
+    placeG(drag.g, drag.it); renderGuides(s.guides); renderPoint(); renderInfo();
+  });
+  function endDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag = null; renderGuides([]); changed();
+  }
+  svg.addEventListener('pointerup', endDrag);
+  svg.addEventListener('pointercancel', endDrag);
+  svg.addEventListener('keydown', (e) => {
+    if (!selId) return;
+    const it = layout.walls[edWall].items.find((t) => t.id === selId); if (!it) return;
+    const step = e.shiftKey ? 10 : 1, mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, step], ArrowDown: [0, -step] }[e.key];
+    if (!mv) return;
+    e.preventDefault();
+    const wl = layout.walls[edWall], w = BY_ID[it.id];
+    it.x = r1(Math.min(wl.w - w.w / 2, Math.max(w.w / 2, it.x + mv[0])));
+    it.y = r1(Math.min(wl.h - w.h / 2, Math.max(w.h / 2, it.y + mv[1])));
+    renderWall(); changed();
+  });
+  svg.addEventListener('focusin', (e) => { const g = e.target.closest('.item'); if (g) { selId = g.dataset.id; renderSelection(); renderInfo(); } });
+
+  // ---------- 정보 · 입력 ----------
+  const info = $('ed-info');
+  function renderInfo() {
+    const wl = layout.walls[edWall];
+    const it = selId && wl.items.find((t) => t.id === selId);
+    if (!it) {
+      const bb = wl.items.length ? bboxOf(wl.items) : null;
+      info.innerHTML = `<p>그림을 손가락으로 끌어 옮기세요. 눈높이선, 다른 그림의 가장자리, 이웃과 45 cm 간격에 가까이 가면 착 붙습니다.</p>
+        <p>${wallName(edWall)} · <b>${wl.items.length}점</b>${bb ? ` · AR 기준점(⊕) 왼쪽 끝에서 <b>${Math.round(bb.cx)} cm</b>, 바닥에서 <b>${Math.round(bb.cy)} cm</b>` : ' · 아래 작품을 눌러 걸어 보세요'}</p>`;
+      return;
+    }
+    const w = BY_ID[it.id], L = it.x - w.w / 2, R = it.x + w.w / 2, B = it.y - w.h / 2, T = it.y + w.h / 2;
+    let left = null, right = null, overlap = false;
+    wl.items.forEach((o) => {
+      if (o.id === it.id) return;
+      const ow = BY_ID[o.id], oL = o.x - ow.w / 2, oR = o.x + ow.w / 2, oB = o.y - ow.h / 2, oT = o.y + ow.h / 2;
+      if (oL < R && oR > L && oB < T && oT > B) overlap = true;
+      if (oB < T && oT > B) {
+        if (oR <= L && (left === null || L - oR < left)) left = L - oR;
+        if (oL >= R && (right === null || oL - R < right)) right = oL - R;
+      }
+    });
+    const gaps = [left !== null ? `왼쪽 그림과 <b>${Math.round(left)} cm</b>` : `벽 왼쪽 끝과 <b>${Math.round(L)} cm</b>`,
+                  right !== null ? `오른쪽 그림과 <b>${Math.round(right)} cm</b>` : `벽 오른쪽 끝과 <b>${Math.round(wl.w - R)} cm</b>`];
+    info.innerHTML = `<p><span class="t">${w.ko}</span> &nbsp;${w.h} × ${w.w} cm</p>
+      <div class="row">
+        <label>가로 위치 <input id="in-x" type="number" inputmode="decimal" step="1" value="${Math.round(it.x)}"> cm</label>
+        <label>중심 높이 <input id="in-y" type="number" inputmode="decimal" step="1" value="${Math.round(it.y)}"> cm</label>
+      </div>
+      <p>아래끝이 바닥에서 <b>${Math.round(B)} cm</b> · ${gaps.join(' · ')}${overlap ? ' · <span class="warn">다른 그림과 겹쳐요</span>' : ''}</p>
+      <div class="tools">
+        <button class="ghost-btn" type="button" data-act="eye">눈높이 150</button>
+        <button class="ghost-btn" type="button" data-act="center">벽 가운데</button>
+        <button class="ghost-btn" type="button" data-act="remove">벽에서 빼기</button>
+      </div>`;
+    const setXY = (x, y) => {
+      it.x = r1(Math.min(wl.w - w.w / 2, Math.max(w.w / 2, x)));
+      it.y = r1(Math.min(wl.h - w.h / 2, Math.max(w.h / 2, y)));
+      renderWall(); changed();
+    };
+    $('in-x').addEventListener('change', (e) => setXY(+e.target.value || it.x, it.y));
+    $('in-y').addEventListener('change', (e) => setXY(it.x, +e.target.value || it.y));
+    info.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => {
+      const a = b.dataset.act;
+      if (a === 'eye') setXY(it.x, EYE);
+      else if (a === 'center') setXY(wl.w / 2, it.y);
+      else { wl.items = wl.items.filter((t) => t.id !== it.id); selId = null; renderWall(); changed(); }
+    }));
+  }
+
+  // ---------- 벽 · 작품 목록 ----------
+  function renderWallChips() {
+    const c = $('wall-chips'); c.innerHTML = '';
+    layout.walls.forEach((wl, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', String(i === edWall));
+      b.textContent = `${wallName(i)} · ${wl.items.length}점`;
+      b.addEventListener('click', () => { edWall = i; selId = null; renderEditor(); });
+      c.appendChild(b);
+    });
+    if (layout.walls.length < 6) {
+      const add = document.createElement('button');
+      add.type = 'button'; add.className = 'chip add'; add.textContent = '+ 벽 추가';
+      add.addEventListener('click', () => { layout.walls.push({ w: 400, h: layout.walls[edWall].h, items: [] }); edWall = layout.walls.length - 1; selId = null; renderEditor(); changed(); });
+      c.appendChild(add);
+    }
+    $('wall-w').value = layout.walls[edWall].w;
+    $('wall-h').value = layout.walls[edWall].h;
+    $('wall-del').hidden = layout.walls.length < 2;
+  }
+  function renderTray() {
+    const t = $('ed-tray'); t.innerHTML = '';
+    const k = 58 / 162.2;
+    WORKS.forEach((w) => {
+      const wi = wallOf(w.id), state = wi === edWall ? 'here' : wi < 0 ? 'none' : 'other';
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.state = state;
+      b.setAttribute('aria-label', `${w.ko}${state === 'here' ? ' (이 벽)' : state === 'other' ? ` (${wallName(wi)})` : ''}`);
+      b.innerHTML = `<img src="img/${w.id}.jpg" alt="" draggable="false" style="width:${(w.w * k).toFixed(1)}px;height:${(w.h * k).toFixed(1)}px">${state === 'other' ? `<i>${String.fromCharCode(65 + wi)}</i>` : ''}`;
+      b.addEventListener('click', () => {
+        const wl = layout.walls[edWall];
+        if (state === 'here') { selId = w.id; renderSelection(); renderInfo(); return; }
+        if (state === 'other') layout.walls[wi].items = layout.walls[wi].items.filter((t) => t.id !== w.id);
+        // 오른쪽 끝 그림 옆 45 cm에, 자리가 없으면 벽 가운데에
+        let x = wl.w / 2;
+        if (wl.items.length) { const bb = bboxOf(wl.items); const nx = bb.R + 45 + w.w / 2; if (nx + w.w / 2 <= wl.w) x = nx; }
+        const y = Math.min(wl.h - w.h / 2, Math.max(w.h / 2, EYE));
+        wl.items.push({ id: w.id, x: r1(Math.min(wl.w - w.w / 2, Math.max(w.w / 2, x))), y: r1(y) });
+        selId = w.id; renderEditor(); changed();
+      });
+      t.appendChild(b);
+    });
+  }
+  function renderHint() {
+    const h = $('ed-hint');
+    const src = { example: '예시 배치로 시작했어요. 자유롭게 옮겨 보세요.', saved: '이 폰에 저장된 배치예요.', link: '받은 링크의 배치를 불러왔어요.', curated: '큐레이터가 정한 배치예요.' }[layoutSource];
+    h.innerHTML = `${src} 바꾸는 즉시 이 폰에 저장됩니다. 관람객 모두가 이 배치를 보게 하려면 <b>배치 링크 복사</b> 후 그 링크를 나눠 주거나, Claude에게 보내 기본 배치로 고정하세요.<br>배치 코드 <code>${encodeLayout(layout)}</code>`;
+  }
+  function renderEditor() { renderWallChips(); renderWall(); renderInfo(); renderTray(); renderHint(); }
+  function changed() { saveLayout(); if (layoutSource === 'example') layoutSource = 'saved'; renderWallChips(); renderTray(); renderInfo(); renderHint(); }
+
+  const clampWall = (wl) => wl.items.forEach((it) => { const w = BY_ID[it.id]; it.x = r1(Math.min(wl.w - w.w / 2, Math.max(w.w / 2, it.x))); it.y = r1(Math.min(wl.h - w.h / 2, Math.max(w.h / 2, it.y))); });
+  $('wall-w').addEventListener('change', (e) => { const wl = layout.walls[edWall]; wl.w = Math.min(3000, Math.max(100, Math.round(+e.target.value || wl.w))); clampWall(wl); renderEditor(); changed(); });
+  $('wall-h').addEventListener('change', (e) => { const wl = layout.walls[edWall]; wl.h = Math.min(1000, Math.max(150, Math.round(+e.target.value || wl.h))); clampWall(wl); renderEditor(); changed(); });
+  $('wall-del').addEventListener('click', () => { if (layout.walls.length < 2) return; layout.walls.splice(edWall, 1); edWall = Math.max(0, edWall - 1); selId = null; renderEditor(); changed(); });
+  let resetArmed = false;
+  $('ed-reset').addEventListener('click', (e) => {
+    if (!resetArmed) { resetArmed = true; e.target.textContent = '한 번 더 누르면 비워집니다'; setTimeout(() => { resetArmed = false; e.target.textContent = '처음부터'; }, 3000); return; }
+    resetArmed = false; e.target.textContent = '처음부터';
+    layout = { walls: [{ w: 600, h: 280, items: [] }] }; edWall = 0; selId = null; renderEditor(); changed();
+  });
+  $('ed-share').addEventListener('click', async (e) => {
+    const code = encodeLayout(layout);
+    const inFrame = window.top !== window.self;
+    const link = `${location.origin}${location.pathname}?layout=${code}#wall`;
+    const text = inFrame ? code : link;
+    const b = e.target;
+    try { await navigator.clipboard.writeText(text); b.textContent = inFrame ? '배치 코드 복사됨' : '링크 복사됨'; }
+    catch (err) { b.textContent = '아래 코드를 길게 눌러 복사하세요'; }
+    setTimeout(() => { b.textContent = '배치 링크 복사'; }, 2500);
+  });
+  $('ed-ar').addEventListener('click', () => { if (!layout.walls[edWall].items.length) return; wallView = edWall; setMode('wall'); });
+
+  // 내 배치 → AR 장면: 그림 묶음의 가운데가 원점(=AR에서 탭한 곳)
+  function layoutScene(wl) {
+    const bb = bboxOf(wl.items);
+    return { items: wl.items.map((it) => ({ w: BY_ID[it.id], x: (it.x - bb.cx) / 100, y: (it.y - bb.cy) / 100 })), bb };
+  }
+
   let mode = 'one', cur = -1, token = 0;
   const chosen = new Set(WORKS.map((_, i) => i)); // 전시 벽에 포함된 작품
 
@@ -304,7 +671,40 @@
     rail.children[i].scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }
 
+  function renderWallbar() {
+    const bar = $('wallbar'); bar.innerHTML = '';
+    const opts = [['line', `일렬 · ${chosen.size}점`]];
+    layout.walls.forEach((wl, i) => { if (wl.items.length) opts.push([i, `내 배치 ${wallName(i)} · ${wl.items.length}점`]); });
+    if (wallView !== 'line' && !(layout.walls[wallView] && layout.walls[wallView].items.length)) wallView = 'line';
+    opts.forEach(([v, label]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = label; b.setAttribute('aria-pressed', String(v === wallView));
+      b.addEventListener('click', () => { wallView = v; updateNote(); showWall(); });
+      bar.appendChild(b);
+    });
+    const ed = document.createElement('button');
+    ed.type = 'button'; ed.className = 'chip add'; ed.textContent = '배치 고치기';
+    ed.addEventListener('click', () => { if (wallView !== 'line') edWall = wallView; setMode('edit'); });
+    bar.appendChild(ed);
+  }
+
   async function showWall() {
+    renderWallbar();
+    const custom = wallView !== 'line';
+    $('rail').hidden = custom; $('ruler-row').hidden = custom;
+    if (custom) {
+      const t = ++token, wl = layout.walls[wallView];
+      const { items, bb } = layoutScene(wl);
+      const url = await buildScene(items, 'L:' + encodeLayout({ walls: [wl] }));
+      if (t !== token) return;
+      mv.src = url;
+      mv.alt = `${wallName(wallView)}에 직접 배치한 작품 ${items.length}점, 가로 ${(bb.w / 100).toFixed(1)} m`;
+      $('ko').textContent = `내 배치 ${wallName(wallView)} · ${items.length}점`;
+      $('en').textContent = `벽 ${wl.w} × ${wl.h} cm`;
+      $('meta').innerHTML = `그림 묶음 가로 <b>${(bb.w / 100).toFixed(2)} m</b> × 세로 <b>${(bb.h / 100).toFixed(2)} m</b><br>벽에서 왼쪽 끝으로부터 <b>${Math.round(bb.cx)} cm</b>, 바닥으로부터 <b>${Math.round(bb.cy)} cm</b> 지점을 탭하세요`;
+      $('ar-label').textContent = '이 배치 세우기';
+      return;
+    }
     const t = ++token;
     const idx = [...chosen].sort((a, b) => a - b);
     const { items, width, height } = wallLayout(idx.map((i) => WORKS[i]));
@@ -321,16 +721,22 @@
 
   function setMode(m) {
     mode = m;
-    $('mode-one').setAttribute('aria-pressed', String(m === 'one'));
-    $('mode-wall').setAttribute('aria-pressed', String(m === 'wall'));
+    ['one', 'wall', 'edit'].forEach((k) => $('mode-' + k).setAttribute('aria-pressed', String(m === k)));
+    const editing = m === 'edit';
+    document.querySelector('.stage').hidden = editing;
+    $('editor').hidden = !editing;
+    $('wallbar').hidden = m !== 'wall';
+    $('rail').hidden = editing; $('ruler-row').hidden = editing;
     rail.classList.toggle('multi', m === 'wall');
     rail.setAttribute('aria-label', m === 'wall' ? '전시 벽에 넣을 작품 (여러 개 선택)' : '작품 선택');
+    if (editing) { renderEditor(); return; }
     updateNote();
     if (m === 'wall') showWall();
     else { const i = cur < 0 ? 2 : cur; cur = -1; select(i); }
   }
   $('mode-one').addEventListener('click', () => mode !== 'one' && setMode('one'));
   $('mode-wall').addEventListener('click', () => mode !== 'wall' && setMode('wall'));
+  $('mode-edit').addEventListener('click', () => mode !== 'edit' && setMode('edit'));
 
   // 이 기기에서 AR이 되는지에 따라 안내문
   function updateNote() {
@@ -338,7 +744,9 @@
     arBtn.hidden = !(mv.canActivateAR && !inFrame);
     if (mv.canActivateAR && !inFrame) {
       note.innerHTML = mode === 'wall'
-        ? '<b>전시 벽 세우기</b>를 누르고 벽을 탭하면 고른 작품이 실제 크기와 간격으로 한 번에 걸립니다. 뒤로 물러나 벽 전체를 둘러보세요.'
+        ? (wallView === 'line'
+          ? '<b>전시 벽 세우기</b>를 누르고 벽을 탭하면 고른 작품이 실제 크기와 간격으로 한 번에 걸립니다. 뒤로 물러나 벽 전체를 둘러보세요.'
+          : '<b>이 배치 세우기</b>를 누르고 아래 적힌 기준점을 탭하면, 도면에서 정한 자리 그대로 걸립니다.')
         : '<b>벽에 걸어보기</b>를 누르고 카메라를 벽에 비추면 그림이 실제 크기로 걸립니다. 손가락으로 끌어 자리를 옮길 수 있어요.';
     } else if (inFrame) {
       note.innerHTML = '지금은 미리보기 화면 안이라 카메라 AR이 열리지 않습니다. 실제 사이트 주소(또는 QR)로 폰에서 열면 <b>벽에 걸어보기</b>가 작동합니다. 여기서는 드래그로 캔버스를 돌려 보세요.';
@@ -350,8 +758,12 @@
   const hash = location.hash.replace('#', '');
   const fromHash = WORKS.findIndex((w) => w.id === hash);
   customElements.whenDefined('model-viewer').then(() => {
-    if (hash === 'wall') setMode('wall');
-    else { updateNote(); select(fromHash >= 0 ? fromHash : 2); }
+    if (hash === 'edit') return setMode('edit');
+    if (hash === 'wall') {
+      if (layoutSource === 'link' || layoutSource === 'curated') { const i = layout.walls.findIndex((wl) => wl.items.length); if (i >= 0) wallView = i; }
+      return setMode('wall');
+    }
+    updateNote(); select(fromHash >= 0 ? fromHash : 2);
   });
 })();
 </script>
