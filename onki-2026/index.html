@@ -434,9 +434,6 @@
         <div><dt>전승 지역</dt><dd>황해도 강령</dd></div>
       </dl>
       <p class="src">출처: 국가문화유산포털 「강령탈춤」, 국립국악원 국악사전</p><p class="folio">00</p></section>`), '강령탈춤이란', 'about');
-    add(null, '오늘의 과장', 'program'); // 쪽 번호를 알아야 해서 나중에
-    const actStart = {};
-    SECTIONS.forEach((sec, i) => { actStart[sec.key] = P.length; flowPages(sec, i + 1).forEach((p, j, a) => add(p, a.length > 1 ? `${sec.title} ${j + 1}/${a.length}` : sec.title, sec.key + j)); });
     for (let i = 0; i < PEOPLE.length; i += 6) {
       const chunk = PEOPLE.slice(i, i + 6), pageNo = i / 6 + 1, total = Math.ceil(PEOPLE.length / 6);
       add(el(`<section class="page cast-page" aria-label="출연진 ${pageNo}">${run()}
@@ -444,6 +441,9 @@
         <div class="grid">${chunk.map((p) => `<figure><img src="img/${p.img}" alt="${p.name}" loading="lazy" draggable="false"><figcaption><b>${p.name}</b>${p.titles.length ? `<small>${p.titles.join('<br>')}</small>` : ''}</figcaption></figure>`).join('')}</div>
         <p class="folio">00</p></section>`), `출연진 ${pageNo}/${total}`, 'cast' + pageNo);
     }
+    add(null, '오늘의 과장', 'program'); // 쪽 번호를 알아야 해서 나중에
+    const actStart = {};
+    SECTIONS.forEach((sec, i) => { actStart[sec.key] = P.length; flowPages(sec, i + 1).forEach((p, j, a) => add(p, a.length > 1 ? `${sec.title} ${j + 1}/${a.length}` : sec.title, sec.key + j)); });
     add(el(`<section class="page credits" aria-label="제작진">${run()}
       <div class="head"><p class="eyebrow">CREDITS</p><h2>제작진</h2></div>
       <dl>${STAFF.map(([r, n]) => `<div><dt>${r}</dt><dd>${n}</dd></div>`).join('')}</dl><p class="folio">00</p></section>`), '제작진', 'staff');
@@ -493,7 +493,7 @@
     // 목차
     const at = (k) => M.findIndex((m) => m.key === k);
     const toc = [['인사말', '온기 : 불씨를 품다', at('greet1')], ['공연 안내', '일시 · 장소 · 주최 · 주관', at('info')], ['강령탈춤연구회', '단체 소개', at('group0')],
-                 ['강령탈춤이란', '국가무형유산', at('about')], ['오늘의 과장', `${SECTIONS.length}과장 · 악사`, progAt], ['출연진', `${PEOPLE.length}명`, at('cast1')],
+                 ['강령탈춤이란', '국가무형유산', at('about')], ['출연진', `${PEOPLE.length}명`, at('cast1')], ['오늘의 과장', `${SECTIONS.length}과장 · 악사`, progAt],
                  ['제작진', '총감독 · 연출 · 기획 · 무대', at('staff')], ['오시는 길', '민속극장 풍류', at('map')], ['함께 보기', 'QR · 링크 공유', at('share')]];
     const tocPage = el(`<section class="page contents" aria-label="목차">${run()}
       <div class="head"><p class="eyebrow">CONTENTS</p><h2>목차</h2></div>
