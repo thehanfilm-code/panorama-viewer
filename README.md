@@ -75,3 +75,6 @@ open index.html
 
 - 그림 재료는 포스터 원본(.ai)에서 300 dpi로 뽑은 탈과 붓글씨 로고(`img/`). 어두운 배경용은 별 테두리 바깥과 흰 바탕을 투명하게 만든 버전
 - QR: `qr/qr-onki.png`(인쇄용 1200 px), `qr/qr-onki.svg`
+
+### 강령탈춤 초대장 (`/onki-2026/invite`)
+100 × 150 mm 초대장. `invite.pdf`는 QR 영역을 누르면 프로그램북이 열리는 링크가 들어 있고(인쇄·PDF 공유용), `invite.png`는 카카오톡·문자로 보내는 이미지(1181 × 1772 px)입니다. 문구를 바꾸면 `node build.js`로 다시 만듭니다.

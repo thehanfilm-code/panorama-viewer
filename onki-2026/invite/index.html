@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온기 : 불씨를 품다 초대장</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap">
+<style>
+  /* 100 × 150 mm 초대장. 어두운 무대 위에 탈이 떠오르고, 아래에 날짜·장소와 누르면 열리는 QR */
+  @page { size: 100mm 150mm; margin: 0; }
+  :root {
+    --stage: #0b0908; --on-dark: #f3ece4; --muted: #a99e94; --red: #e3141f; --ember: #f26a21; --gold: #f6b23c;
+    --f-display: 'Black Han Sans', 'Noto Sans KR', sans-serif; --f-sans: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100mm; height: 150mm; background: var(--stage); color: var(--on-dark); font-family: var(--f-sans); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  a { color: inherit; text-decoration: none; }
+  .card { position: relative; width: 100mm; height: 150mm; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center;
+          background: radial-gradient(120% 60% at 50% 22%, #3a170b 0%, #1a110d 40%, var(--stage) 72%); }
+  .embers { position: absolute; inset: 0; pointer-events: none; }
+  .mask { position: relative; width: 54mm; margin-top: -3mm; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24%); mask-image: linear-gradient(to bottom, transparent 0, #000 24%); filter: drop-shadow(0 0 6mm rgba(242,106,33,.35)); }
+  .logo { position: relative; width: 64mm; margin-top: .5mm; filter: drop-shadow(0 0 2mm rgba(242,106,33,.35)); }
+  .band { position: relative; width: 100%; margin-top: 3.2mm; padding-block: 1.6mm; background: #000; font-size: 7.4pt; font-weight: 700; letter-spacing: .02em; }
+  .band span { color: var(--muted); font-weight: 500; margin-left: 2mm; }
+  .title { position: relative; margin-top: 3.4mm; font-family: var(--f-display); line-height: 1; }
+  .title .onki { display: block; color: var(--ember); font-size: 10pt; margin-bottom: 1.4mm; }
+  .title .onki small { font-family: var(--f-sans); font-weight: 900; font-size: 7pt; color: var(--gold); margin-left: 1mm; }
+  .title .big { font-size: 34pt; letter-spacing: -0.01em; }
+  .title .fire { color: var(--red); text-shadow: 0 0 3mm rgba(227,20,31,.55); }
+  .title .eul { font-size: .45em; vertical-align: .8em; }
+  .when { position: relative; margin-top: 3.4mm; display: grid; gap: .8mm; }
+  .when .date { font-family: var(--f-display); font-size: 13pt; color: var(--gold); }
+  .when .venue { font-family: var(--f-display); font-size: 17pt; }
+  .when .addr { font-size: 6pt; color: var(--muted); }
+  .go { position: relative; margin-top: auto; margin-bottom: 4mm; width: 86mm; display: grid; grid-template-columns: 24mm 1fr; gap: 3.5mm; align-items: center; text-align: left;
+        padding: 3mm; border: .25mm solid #3a302a; background: #0c0a09; }
+  .qrbox { background: #fff; padding: 1.6mm; display: block; }
+  .qr { display: block; width: 100%; height: auto; }
+  .go b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 11pt; line-height: 1.25; }
+  .go b .fire { color: var(--red); }
+  .go p { margin-top: 1mm; font-size: 6.2pt; line-height: 1.55; color: var(--muted); word-break: keep-all; }
+  .go .url { margin-top: 1.2mm; font-size: 5.6pt; color: var(--on-dark); line-height: 1.45; }
+  .foot { position: relative; margin-bottom: 4.5mm; font-size: 5.4pt; line-height: 1.6; color: var(--muted); padding-inline: 6mm; word-break: keep-all; }
+  .foot b { color: var(--on-dark); font-weight: 500; }
+</style>
+</head>
+<body>
+<article class="card">
+  <svg class="embers" viewBox="0 0 100 150" aria-hidden="true"><circle cx="1.1" cy="61.5" r="0.40" fill="#f26a21" opacity="0.38"/><circle cx="92.0" cy="64.0" r="0.48" fill="#f26a21" opacity="0.75"/><circle cx="56.4" cy="20.9" r="0.41" fill="#f26a21" opacity="0.57"/><circle cx="45.5" cy="19.4" r="0.75" fill="#ffd28a" opacity="0.27"/><circle cx="7.1" cy="110.8" r="0.59" fill="#f26a21" opacity="0.31"/><circle cx="82.3" cy="30.0" r="0.75" fill="#f26a21" opacity="0.41"/><circle cx="75.3" cy="31.6" r="0.63" fill="#f26a21" opacity="0.83"/><circle cx="50.4" cy="31.5" r="0.32" fill="#ffd28a" opacity="0.51"/><circle cx="98.6" cy="91.0" r="0.71" fill="#f26a21" opacity="0.25"/><circle cx="52.2" cy="31.5" r="0.28" fill="#ffd28a" opacity="0.55"/><circle cx="1.3" cy="80.4" r="0.41" fill="#ffd28a" opacity="0.60"/><circle cx="99.2" cy="109.5" r="0.66" fill="#f26a21" opacity="0.69"/><circle cx="91.9" cy="103.9" r="0.60" fill="#ffd28a" opacity="0.63"/><circle cx="4.8" cy="70.7" r="0.32" fill="#f26a21" opacity="0.26"/><circle cx="84.9" cy="40.9" r="0.28" fill="#f26a21" opacity="0.50"/><circle cx="5.1" cy="95.9" r="0.36" fill="#f26a21" opacity="0.46"/><circle cx="42.2" cy="51.8" r="0.52" fill="#f26a21" opacity="0.40"/><circle cx="7.5" cy="84.6" r="0.49" fill="#f26a21" opacity="0.53"/><circle cx="97.5" cy="110.0" r="0.34" fill="#f26a21" opacity="0.45"/><circle cx="99.8" cy="87.1" r="0.26" fill="#ffd28a" opacity="0.79"/><circle cx="86.6" cy="29.3" r="0.32" fill="#ffd28a" opacity="0.74"/><circle cx="97.1" cy="86.9" r="0.59" fill="#f26a21" opacity="0.51"/><circle cx="4.3" cy="7.3" r="0.68" fill="#ffd28a" opacity="0.82"/><circle cx="62.8" cy="6.4" r="0.36" fill="#f26a21" opacity="0.51"/><circle cx="96.6" cy="82.2" r="0.35" fill="#ffd28a" opacity="0.72"/><circle cx="22.8" cy="47.6" r="0.30" fill="#ffd28a" opacity="0.52"/><circle cx="98.2" cy="91.1" r="0.80" fill="#f26a21" opacity="0.83"/><circle cx="1.6" cy="68.0" r="0.29" fill="#f26a21" opacity="0.49"/><circle cx="93.9" cy="89.4" r="0.69" fill="#ffd28a" opacity="0.58"/><circle cx="17.8" cy="42.0" r="0.46" fill="#ffd28a" opacity="0.59"/><circle cx="34.4" cy="2.8" r="0.66" fill="#f26a21" opacity="0.39"/><circle cx="93.2" cy="94.0" r="0.71" fill="#ffd28a" opacity="0.49"/><circle cx="36.8" cy="3.9" r="0.52" fill="#f26a21" opacity="0.84"/><circle cx="40.4" cy="22.5" r="0.33" fill="#f26a21" opacity="0.25"/><circle cx="57.0" cy="12.1" r="0.46" fill="#f26a21" opacity="0.75"/><circle cx="11.5" cy="39.8" r="0.63" fill="#f26a21" opacity="0.64"/><circle cx="93.5" cy="99.0" r="0.76" fill="#ffd28a" opacity="0.69"/><circle cx="99.4" cy="103.8" r="0.33" fill="#ffd28a" opacity="0.41"/></svg>
+  <img class="mask" src="mask-dark.png" alt="강령탈춤 탈 그림">
+  <img class="logo" src="logo-dark.png" alt="강령탈춤연구회 中天舞">
+  <p class="band">국가무형유산 강령탈춤 <span>2026년 정기공연</span></p>
+  <p class="title"><span class="onki">온기<small>ON 氣</small></span><span class="big"><span class="fire">불씨</span><span class="eul">를</span> 품다</span></p>
+  <div class="when">
+    <p class="date">2026년 11월 14일(토) 오후 2시</p>
+    <p class="venue">민속극장 풍류</p>
+    <p class="addr">서울특별시 강남구 봉은사로 406 (삼성동, 서울중요무형문화재전수회관)</p>
+  </div>
+  <a class="go" href="https://thehanfilm-code.github.io/panorama-viewer/onki-2026/">
+    <span class="qrbox"><svg class="qr" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#121010" d="M0 0.5h7m2 0h1m1 0h1m1 0h1m2 0h5m2 0h1m2 0h7M0 1.5h1m5 0h1m2 0h2m2 0h6m1 0h2m4 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m2 0h4m1 0h1m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h5m2 0h1m2 0h3m2 0h1m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h1m1 0h1m2 0h1m1 0h1m6 0h1m1 0h1m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m2 0h2m2 0h2m1 0h4m1 0h1M0 8.5h1m1 0h5m2 0h1m1 0h3m1 0h3m1 0h1m2 0h1m1 0h1m1 0h5M0 9.5h1m1 0h1m1 0h2m3 0h1m2 0h1m3 0h6m1 0h1m2 0h2m1 0h2m1 0h1M2 10.5h2m1 0h2m2 0h1m5 0h1m2 0h1m1 0h3m1 0h1m3 0h1m1 0h1M0 11.5h1m1 0h4m3 0h1m1 0h1m2 0h2m3 0h1m1 0h2m1 0h1m1 0h1m1 0h5M0 12.5h1m1 0h1m3 0h3m1 0h3m4 0h2m3 0h2m1 0h1m2 0h2m1 0h2M1 13.5h4m3 0h1m1 0h2m1 0h2m1 0h1m1 0h6m2 0h1m2 0h1m1 0h2M0 14.5h3m3 0h1m2 0h3m2 0h1m5 0h1m1 0h1m2 0h2m1 0h2m1 0h1M1 15.5h2m1 0h2m3 0h1m1 0h1m2 0h3m2 0h3m3 0h2m1 0h3M1 16.5h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m2 0h4m1 0h3m2 0h1M3 17.5h1m3 0h4m3 0h1m1 0h1m1 0h4m1 0h1m1 0h3m1 0h2m1 0h1M2 18.5h1m1 0h3m2 0h1m1 0h5m2 0h1m1 0h1m1 0h1m4 0h2m1 0h2M0 19.5h1m1 0h4m1 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h3m2 0h1m1 0h5M2 20.5h1m1 0h1m1 0h1m2 0h2m4 0h1m1 0h3m2 0h1m1 0h2m1 0h3m2 0h1M0 21.5h1m2 0h1m1 0h1m1 0h1m2 0h1m2 0h5m1 0h2m2 0h2m1 0h1m3 0h1m1 0h1M0 22.5h1m1 0h1m1 0h1m1 0h3m2 0h1m2 0h2m1 0h1m2 0h2m3 0h1m1 0h2m1 0h2M0 23.5h1m2 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m2 0h5m1 0h1m3 0h3m1 0h1M0 24.5h1m3 0h3m2 0h4m1 0h4m1 0h1m2 0h1m1 0h5m2 0h1M8 25.5h2m1 0h3m2 0h1m1 0h2m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1M0 26.5h7m3 0h1m1 0h1m2 0h3m2 0h5m1 0h1m1 0h1m1 0h2M0 27.5h1m5 0h1m1 0h4m1 0h1m1 0h1m4 0h5m3 0h3m1 0h1M0 28.5h1m1 0h3m1 0h1m1 0h3m2 0h1m3 0h3m2 0h1m1 0h6m1 0h2M0 29.5h1m1 0h3m1 0h1m1 0h2m4 0h2m3 0h1m2 0h1m1 0h2m2 0h1m1 0h3M0 30.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h4m3 0h2m3 0h2m1 0h2M0 31.5h1m5 0h1m2 0h2m5 0h1m2 0h1m1 0h1m3 0h2m1 0h3M0 32.5h7m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg>
+</span>
+    <span><b>프로그램북 <span class="fire">열기</span></b>
+      <p>QR을 누르거나 휴대폰 카메라로 찍으면 과장 소개와 출연진이 담긴 프로그램북이 열립니다.</p>
+      <p class="url">thehanfilm-code.github.io/<wbr><span style="white-space:nowrap">panorama-viewer/onki-2026/</span></p></span>
+  </a>
+  <p class="foot"><b>주최</b> 강령탈춤연구회 · <b>주관</b> 우리문화전문연희단체 꾼 · 전통연희놀이연구소 · 탈무브먼트 · 예움회</p>
+</article>
+</body>
+</html>
