@@ -223,7 +223,7 @@
   .program.compact2 li img { display: none; }
   .program.compact2 li button { grid-template-columns: 44px 1fr auto; }
   /* 출연진: 한 쪽에 6명 */
-  .cast-page .grid { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; }
+  .cast-page .grid { margin-top: 14px; flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 10px; align-content: space-evenly; }
   .cast-page figure { display: grid; gap: 5px; align-content: start; }
   .cast-page figure img { width: 100%; aspect-ratio: 587 / 767; object-fit: cover; border-radius: 10px; display: block; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
   .cast-page figcaption { text-align: center; line-height: 1.35; word-break: keep-all; }
@@ -438,7 +438,7 @@
       const chunk = PEOPLE.slice(i, i + 6), pageNo = i / 6 + 1, total = Math.ceil(PEOPLE.length / 6);
       add(el(`<section class="page cast-page" aria-label="출연진 ${pageNo}">${run()}
         <div class="head"><p class="eyebrow">CAST</p><h2>출연진<span class="count">${pageNo} / ${total}</span></h2></div>
-        <div class="grid">${chunk.map((p) => `<figure><img src="img/${p.img}" alt="${p.name}" loading="lazy" draggable="false"><figcaption><b>${p.name}</b>${p.titles.length ? `<small>${p.titles.join('<br>')}</small>` : ''}</figcaption></figure>`).join('')}</div>
+        <div class="grid">${chunk.map((p) => `<figure><img src="img/${p.img}" alt="${p.name}" draggable="false"><figcaption><b>${p.name}</b>${p.titles.length ? `<small>${p.titles.join('<br>')}</small>` : ''}</figcaption></figure>`).join('')}</div>
         <p class="folio">00</p></section>`), `출연진 ${pageNo}/${total}`, 'cast' + pageNo);
     }
     add(null, '오늘의 과장', 'program'); // 쪽 번호를 알아야 해서 나중에
@@ -781,8 +781,11 @@
 
 
   // ---------- 막 오름 ↔ 책 ----------
+  // 출연진 사진은 미리 받아 둔다(책장을 넘길 때 빈 칸이 보이지 않게)
+  function preloadPeople() { PEOPLE.forEach((p) => { const im = new Image(); im.decoding = 'async'; im.src = 'img/' + p.img; }); }
   async function showReader() {
     reader.hidden = false;
+    preloadPeople();
     try { await document.fonts.ready; } catch (e) {}
     layout();
     rest();
