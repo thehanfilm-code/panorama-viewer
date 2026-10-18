@@ -222,6 +222,20 @@
   .program.compact .music { margin-top: 10px; padding: 8px 10px; }
   .program.compact2 li img { display: none; }
   .program.compact2 li button { grid-template-columns: 44px 1fr auto; }
+  .page h2.cont-h { font-size: 15px; color: var(--muted); }
+  .page h2.cont-h small { font-family: var(--f-sans); font-size: 11px; font-weight: 500; }
+  .flow .emblem img { aspect-ratio: 1400 / 1099; }
+  .contents.compact3 .head { margin-top: 12px; }
+  .contents.compact3 ol { margin-top: 10px; }
+  .contents.compact3 li button { padding: 5px 0; }
+  .contents.compact3 .t { font-size: 12px; }
+  .rotate { display: none; }
+  @media (orientation: landscape) and (max-height: 520px) {
+    .reader .rotate { display: grid; place-items: center; align-content: center; gap: 6px; position: absolute; inset: 0; z-index: 5; background: var(--stage); text-align: center; }
+    .reader .rotate p { font-family: var(--f-display); font-size: 22px; }
+    .reader .rotate b { color: var(--red); font-weight: 400; }
+    .reader .rotate small { font-size: 12px; color: var(--on-dark-muted); }
+  }
   /* 출연진: 한 쪽에 6명 */
   .cast-page .grid { margin-top: 14px; flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 10px; align-content: space-evenly; }
   .cast-page figure { display: grid; gap: 5px; align-content: start; }
@@ -283,6 +297,7 @@
       <canvas id="curl"></canvas>
     </div>
   </div>
+  <div class="rotate" aria-hidden="true"><p>휴대폰을 <b>세로로</b> 돌려 주세요</p><small>책장이 세로 화면에 맞춰져 있어요</small></div>
   <nav class="reader-bottom" aria-label="페이지 이동">
     <button id="prev" type="button" aria-label="이전 페이지">‹</button>
     <output id="counter" aria-live="polite">표지</output>
@@ -366,32 +381,69 @@
   const overflows = (pg) => pg.scrollHeight > pg.clientHeight + 1;
   function fit(pg, steps) { measure.replaceChildren(pg); for (const c of steps) { if (!overflows(pg)) break; pg.classList.add(c); } const ok = !overflows(pg); measure.replaceChildren(); return ok; }
 
-  // 사진 + 제목 + 글 블록을 쪽에 채우고, 넘치는 블록은 다음 쪽으로
-  function flowPages(sec, no) {
+  // 쪽 하나에 머리글 + 블록들을 채우고, 넘치는 블록은 다음 쪽(이어서)으로 보낸다
+  function flow({ cls, label, head, contHead, blocks, bodyTag = 'div', bodyCls = 'body' }) {
     const out = [];
     const start = (first) => {
-      const pg = el(`<section class="page flow" aria-label="${sec.title}">${run()}
-        ${first && sec.img ? `<div class="photo"><img src="${sec.img}" alt="${sec.title} 공연 사진" style="aspect-ratio:${sec.w} / ${sec.h}" draggable="false"></div>` : ''}
-        ${first && sec.emblem ? `<div class="emblem"><img src="${sec.emblem}" alt="" draggable="false"></div>` : ''}
-        <div class="ttl${first ? '' : ' cont'}">${first && no ? `<span class="no">제${no}과장</span>` : ''}${!first ? '' : sec.eyebrow ? `<span class="no">${sec.eyebrow}</span>` : ''}<h2>${sec.title}${first ? '' : ' (이어서)'}</h2></div>
-        <div class="body"></div><p class="folio">00</p></section>`);
+      const pg = el(`<section class="page ${cls}" aria-label="${label}">${run()}${first ? head : contHead}<${bodyTag} class="${bodyCls}"></${bodyTag}><p class="folio">00</p></section>`);
       measure.replaceChildren(pg); return pg;
     };
-    let pg = start(true), bodyEl = pg.querySelector('.body');
-    for (const blk of sec.body) {
-      const node = el(blockHtml(blk)); bodyEl.appendChild(node);
-      if (overflows(pg) && bodyEl.children.length > 1) {
-        node.remove(); out.push(pg);
-        pg = start(false); bodyEl = pg.querySelector('.body'); bodyEl.appendChild(node);
+    let pg = start(true), body = pg.querySelector('.' + bodyCls), fresh = false;
+    // 문단 하나가 빈 쪽에도 안 들어가면(아주 작은 화면) 문장 단위로 둘로 나눈다
+    const halves = (node) => {
+      if (node.tagName !== 'P' || node.classList.length) return null;
+      const parts = node.innerHTML.split(/(?<=[.!?。”’])\s+/);
+      if (parts.length < 2) return null;
+      const mid = Math.ceil(parts.length / 2);
+      return [el(`<p>${parts.slice(0, mid).join(' ')}</p>`), el(`<p>${parts.slice(mid).join(' ')}</p>`)];
+    };
+    const place = (node) => {
+      body.appendChild(node);
+      if (!overflows(pg)) { fresh = false; return; }
+      node.remove();
+      if (body.children.length || pg.querySelector('.photo, .emblem')) {
+        if (!fresh || body.children.length) { out.push(pg); pg = start(false); body = pg.querySelector('.' + bodyCls); fresh = true; }
       }
-    }
+      body.appendChild(node);
+      if (!overflows(pg)) { fresh = false; return; }
+      const h = halves(node);
+      if (!h) { fresh = false; return; } // 더 나눌 수 없으면 그대로 둔다
+      node.remove(); place(h[0]); place(h[1]);
+    };
+    for (const html of blocks) place(el(html));
     out.push(pg);
+    return out;
+  }
+  const kv = ([r, n]) => `<div><dt>${r}</dt><dd>${n}</dd></div>`;
+  const contHeadOf = (title) => `<div class="head"><h2 class="cont-h">${title} <small>(이어서)</small></h2></div>`;
+  function flowPages(sec, no) {
+    return flow({ cls: 'flow', label: sec.title, blocks: sec.body.map(blockHtml),
+      head: `${sec.img ? `<div class="photo"><img src="${sec.img}" alt="${sec.title} 공연 사진" style="aspect-ratio:${sec.w} / ${sec.h}" draggable="false"></div>` : ''}
+             ${sec.emblem ? `<div class="emblem"><img src="${sec.emblem}" alt="" draggable="false"></div>` : ''}
+             <div class="ttl">${no ? `<span class="no">제${no}과장</span>` : sec.eyebrow ? `<span class="no">${sec.eyebrow}</span>` : ''}<h2>${sec.title}</h2></div>`,
+      contHead: `<div class="ttl cont"><h2>${sec.title} (이어서)</h2></div>` });
+  }
+  // 출연진: 한 쪽에 6명, 화면이 작아 다 안 들어가면 그 쪽은 사람 수를 줄인다(아무도 잘리지 않게)
+  function castPages() {
+    const make = (chunk) => el(`<section class="page cast-page" aria-label="출연진">${run()}
+      <div class="head"><p class="eyebrow">CAST</p><h2>출연진<span class="count"></span></h2></div>
+      <div class="grid">${chunk.map((p) => `<figure><img src="img/${p.img}" alt="${p.name}" draggable="false"><figcaption><b>${p.name}</b>${p.titles.length ? `<small>${p.titles.join('<br>')}</small>` : ''}</figcaption></figure>`).join('')}</div>
+      <p class="folio">00</p></section>`);
+    const out = [];
+    for (let i = 0; i < PEOPLE.length;) {
+      let n = Math.min(6, PEOPLE.length - i), pg = null;
+      for (; n >= 1; n--) { pg = make(PEOPLE.slice(i, i + n)); measure.replaceChildren(pg); if (!overflows(pg)) break; }
+      if (n < 1) { n = 1; pg = make(PEOPLE.slice(i, i + 1)); }
+      out.push(pg); i += n;
+    }
+    out.forEach((pg, k) => { pg.querySelector('.count').textContent = `${k + 1} / ${out.length}`; });
     return out;
   }
 
   function buildPages() {
     const P = [], M = [];
     const add = (node, label, key) => { P.push(node); M.push({ label, key }); };
+    const addAll = (list, label, key) => list.forEach((p, j) => add(p, list.length > 1 ? `${label} ${j + 1}/${list.length}` : label, key + j));
     add(el(`<section class="page cover" aria-label="표지"><div class="glow"></div><div class="inner">
         <div class="cmask"><img src="img/mask-dark.png" alt="" draggable="false"></div>
         <img class="clogo" src="img/logo-dark.png" alt="강령탈춤연구회 中天舞" draggable="false">
@@ -399,30 +451,23 @@
         <p class="ctitle"><span class="onki">온기 ON 氣</span><span class="big"><span class="fire">불씨</span><span class="eul">를</span> 품다</span></p>
         <p class="cfoot"><b>2026. 11. 14 (토) 오후 2시</b><br>민속극장 풍류</p></div></section>`), '표지', 'cover');
     add(null, '목차', 'contents'); // 마지막에 채움
-    add(el(`<section class="page greeting" aria-label="인사말 1">${run()}
-      <div class="head"><p class="eyebrow">GREETING</p><h2>인사말</h2></div>
-      <div class="lede">
-        <p>불은 한순간에 타오르지 않습니다. 불은 불씨 하나가 남아 있고, 그 불씨를 품는 온기가 있을 때 비로소 다시 빛을 냅니다.</p>
-        <p>강령탈춤연구회 중천무 역시 수많은 사람들의 마음과 시간, 그리고 땀이 모여 오늘까지 이어져 왔습니다. 때로는 뜨겁게 타올랐고, 때로는 바람 앞의 불씨처럼 흔들리기도 했습니다.</p>
-        <p>지금 우리는 그 시간을 지나 다시 스스로에게 묻습니다.</p>
-        <p class="q">우리 안의 불씨는<br>아직 살아 있는가.</p>
-      </div><p class="folio">00</p></section>`), '인사말', 'greet1');
-    add(el(`<section class="page greeting" aria-label="인사말 2">${run()}
-      <div class="lede" style="margin-top:22px">
-        <p>이번 정기공연 ‘온기 : 불씨를 품다’는 그 질문에서 시작되었습니다. 전통을 이어간다는 것은 단지 춤사위와 기예를 전하는 일이 아니라, 사람의 마음을 잇고, 함께 품으며, 서로의 온기로 작은 불씨를 지켜가는 일이라 믿습니다.</p>
-        <p>남아 있는 온기가 서로의 마음을 다시 켜고(ON), 그 온기가 불씨를 품어 꺼지지 않는 불꽃이 되기를 바랍니다.</p>
-        <p>오늘 이 무대가 강령탈춤을 사랑하는 모든 분들의 마음속에 작은 온기로 남아, 다시 함께 걸어갈 내일을 밝히는 불씨가 되기를 소망합니다.</p>
-      </div><p class="sign"><b>강령탈춤연구회 中天舞</b></p><p class="folio">00</p></section>`), '인사말', 'greet2');
-    add(el(`<section class="page info" aria-label="공연 안내">${run()}
-      <div class="head"><p class="eyebrow">PERFORMANCE</p><h2>공연 안내</h2></div>
-      <dl>
-        <div><dt>공연</dt><dd>국가무형유산 강령탈춤<br>2026년 정기공연 <b>‘온기 : 불씨를 품다’</b></dd></div>
-        <div><dt>일시</dt><dd><span class="bigdate">2026년 11월 14일(토)<br>오후 2시</span></dd></div>
-        <div><dt>장소</dt><dd><span class="bigvenue">민속극장 풍류</span><br>서울특별시 강남구 봉은사로 406<br>(삼성동, 서울중요무형문화재전수회관)</dd></div>
-        <div><dt>주최</dt><dd>강령탈춤연구회</dd></div>
-        <div><dt>주관</dt><dd>우리문화전문연희단체 꾼 · 전통연희놀이연구소 · 탈무브먼트 · 예움회</dd></div>
-      </dl><p class="folio">00</p></section>`), '공연 안내', 'info');
-    flowPages(GROUP, 0).forEach((p, i) => add(p, '강령탈춤연구회', 'group' + i));
+    addAll(flow({ cls: 'greeting', label: '인사말', bodyCls: 'lede',
+      head: `<div class="head"><p class="eyebrow">GREETING</p><h2>인사말</h2></div>`, contHead: contHeadOf('인사말'),
+      blocks: ['<p>불은 한순간에 타오르지 않습니다. 불은 불씨 하나가 남아 있고, 그 불씨를 품는 온기가 있을 때 비로소 다시 빛을 냅니다.</p>',
+        '<p>강령탈춤연구회 중천무 역시 수많은 사람들의 마음과 시간, 그리고 땀이 모여 오늘까지 이어져 왔습니다. 때로는 뜨겁게 타올랐고, 때로는 바람 앞의 불씨처럼 흔들리기도 했습니다.</p>',
+        '<p>지금 우리는 그 시간을 지나 다시 스스로에게 묻습니다.</p>',
+        '<p class="q">우리 안의 불씨는<br>아직 살아 있는가.</p>',
+        '<p>이번 정기공연 ‘온기 : 불씨를 품다’는 그 질문에서 시작되었습니다. 전통을 이어간다는 것은 단지 춤사위와 기예를 전하는 일이 아니라, 사람의 마음을 잇고, 함께 품으며, 서로의 온기로 작은 불씨를 지켜가는 일이라 믿습니다.</p>',
+        '<p>남아 있는 온기가 서로의 마음을 다시 켜고(ON), 그 온기가 불씨를 품어 꺼지지 않는 불꽃이 되기를 바랍니다.</p>',
+        '<p>오늘 이 무대가 강령탈춤을 사랑하는 모든 분들의 마음속에 작은 온기로 남아, 다시 함께 걸어갈 내일을 밝히는 불씨가 되기를 소망합니다.</p>',
+        '<p class="sign"><b>강령탈춤연구회 中天舞</b></p>'] }), '인사말', 'greet');
+    addAll(flow({ cls: 'info', label: '공연 안내', bodyTag: 'dl', bodyCls: 'rows',
+      head: `<div class="head"><p class="eyebrow">PERFORMANCE</p><h2>공연 안내</h2></div>`, contHead: contHeadOf('공연 안내'),
+      blocks: [kv(['공연', '국가무형유산 강령탈춤<br>2026년 정기공연 <b>‘온기 : 불씨를 품다’</b>']),
+        kv(['일시', '<span class="bigdate">2026년 11월 14일(토)<br>오후 2시</span>']),
+        kv(['장소', '<span class="bigvenue">민속극장 풍류</span><br>서울특별시 강남구 봉은사로 406<br>(삼성동, 서울중요무형문화재전수회관)']),
+        kv(['주최', '강령탈춤연구회']), kv(['주관', '우리문화전문연희단체 꾼 · 전통연희놀이연구소 · 탈무브먼트 · 예움회'])] }), '공연 안내', 'info');
+    addAll(flowPages(GROUP, 0), '강령탈춤연구회', 'group');
     add(el(`<section class="page about" aria-label="강령탈춤이란">${run()}
       <div class="head"><p class="eyebrow">GANGNYEONG TALCHUM</p><h2>강령탈춤이란</h2></div>
       <div class="lede">
@@ -434,19 +479,14 @@
         <div><dt>전승 지역</dt><dd>황해도 강령</dd></div>
       </dl>
       <p class="src">출처: 국가문화유산포털 「강령탈춤」, 국립국악원 국악사전</p><p class="folio">00</p></section>`), '강령탈춤이란', 'about');
-    for (let i = 0; i < PEOPLE.length; i += 6) {
-      const chunk = PEOPLE.slice(i, i + 6), pageNo = i / 6 + 1, total = Math.ceil(PEOPLE.length / 6);
-      add(el(`<section class="page cast-page" aria-label="출연진 ${pageNo}">${run()}
-        <div class="head"><p class="eyebrow">CAST</p><h2>출연진<span class="count">${pageNo} / ${total}</span></h2></div>
-        <div class="grid">${chunk.map((p) => `<figure><img src="img/${p.img}" alt="${p.name}" draggable="false"><figcaption><b>${p.name}</b>${p.titles.length ? `<small>${p.titles.join('<br>')}</small>` : ''}</figcaption></figure>`).join('')}</div>
-        <p class="folio">00</p></section>`), `출연진 ${pageNo}/${total}`, 'cast' + pageNo);
-    }
+    const casts = castPages();
+    casts.forEach((p, k) => add(p, `출연진 ${k + 1}/${casts.length}`, 'cast' + (k + 1)));
     add(null, '오늘의 과장', 'program'); // 쪽 번호를 알아야 해서 나중에
     const actStart = {};
-    SECTIONS.forEach((sec, i) => { actStart[sec.key] = P.length; flowPages(sec, i + 1).forEach((p, j, a) => add(p, a.length > 1 ? `${sec.title} ${j + 1}/${a.length}` : sec.title, sec.key + j)); });
-    add(el(`<section class="page credits" aria-label="제작진">${run()}
-      <div class="head"><p class="eyebrow">CREDITS</p><h2>제작진</h2></div>
-      <dl>${STAFF.map(([r, n]) => `<div><dt>${r}</dt><dd>${n}</dd></div>`).join('')}</dl><p class="folio">00</p></section>`), '제작진', 'staff');
+    SECTIONS.forEach((sec, i) => { actStart[sec.key] = P.length; addAll(flowPages(sec, i + 1), sec.title, sec.key); });
+    addAll(flow({ cls: 'credits', label: '제작진', bodyTag: 'dl', bodyCls: 'rows',
+      head: `<div class="head"><p class="eyebrow">CREDITS</p><h2>제작진</h2></div>`, contHead: contHeadOf('제작진'),
+      blocks: STAFF.map(kv) }), '제작진', 'staff');
     add(el(`<section class="page map" aria-label="오시는 길">${run()}
       <div class="head"><p class="eyebrow">LOCATION</p><h2>오시는 길</h2></div>
       <p class="place">민속극장 풍류</p>
@@ -492,14 +532,14 @@
     P[progAt] = prog;
     // 목차
     const at = (k) => M.findIndex((m) => m.key === k);
-    const toc = [['인사말', '온기 : 불씨를 품다', at('greet1')], ['공연 안내', '일시 · 장소 · 주최 · 주관', at('info')], ['강령탈춤연구회', '단체 소개', at('group0')],
+    const toc = [['인사말', '온기 : 불씨를 품다', at('greet0')], ['공연 안내', '일시 · 장소 · 주최 · 주관', at('info0')], ['강령탈춤연구회', '단체 소개', at('group0')],
                  ['강령탈춤이란', '국가무형유산', at('about')], ['출연진', `${PEOPLE.length}명`, at('cast1')], ['오늘의 과장', `${SECTIONS.length}과장 · 악사`, progAt],
-                 ['제작진', '총감독 · 연출 · 기획 · 무대', at('staff')], ['오시는 길', '민속극장 풍류', at('map')], ['함께 보기', 'QR · 링크 공유', at('share')]];
+                 ['제작진', '총감독 · 연출 · 기획 · 무대', at('staff0')], ['오시는 길', '민속극장 풍류', at('map')], ['함께 보기', 'QR · 링크 공유', at('share')]];
     const tocPage = el(`<section class="page contents" aria-label="목차">${run()}
       <div class="head"><p class="eyebrow">CONTENTS</p><h2>목차</h2></div>
       <ol>${toc.map(([t, sub, i], k) => `<li><button type="button" data-goto="${i}"><span class="n">${String(k + 1).padStart(2, '0')}</span><span class="t">${t}<small>${sub}</small></span><span class="p">${i}</span></button></li>`).join('')}</ol>
       <p class="folio">00</p></section>`);
-    fit(tocPage, ['compact', 'compact2']);
+    fit(tocPage, ['compact', 'compact2', 'compact3']);
     P[1] = tocPage;
     P.forEach((p, i) => { const f = p.querySelector('.folio'); if (f) f.textContent = i; });
     measure.replaceChildren();
