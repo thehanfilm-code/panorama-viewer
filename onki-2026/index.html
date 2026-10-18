@@ -79,30 +79,32 @@
 
   /* ---------- 책 ---------- */
   .reader { position: fixed; inset: 0; display: flex; flex-direction: column; background: radial-gradient(90% 60% at 50% 45%, #1c1410 0%, var(--stage) 70%); }
-  .reader-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 16px; padding-block: calc(12px + env(safe-area-inset-top, 0px)) 8px; font-size: 12px; }
-  .reader-top .who { font-family: var(--f-display); font-size: 16px; letter-spacing: .01em; }
+  .reader-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 14px; padding-block: calc(8px + env(safe-area-inset-top, 0px)) 4px; font-size: 12px; }
+  .reader-top .who { font-family: var(--f-display); font-size: 14px; letter-spacing: .01em; }
   .reader-top .who b { color: var(--red); font-weight: 400; }
   .reader-top nav { display: flex; gap: 2px; }
   .link-btn { background: none; border: 0; padding: 8px 10px; cursor: pointer; font-size: 12px; color: var(--on-dark-muted); }
   .link-btn:hover { color: var(--on-dark); }
-  .stage { flex: 1; min-height: 0; display: grid; place-items: center; padding-inline: 16px; padding-block: 8px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .stage { flex: 1; min-height: 0; display: grid; place-items: center; padding-inline: 10px; padding-block: 4px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
   .book { position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 30px 80px rgba(0,0,0,.65), 0 0 120px rgba(242,106,33,.10); background: var(--paper); }
   .slot { position: absolute; inset: 0; background: var(--paper); overflow: hidden; }
   #curl { position: absolute; pointer-events: none; }
-  .reader-bottom { display: flex; align-items: center; justify-content: center; gap: 22px; padding-inline: 16px; padding-block: 6px calc(14px + env(safe-area-inset-bottom, 0px)); }
-  .reader-bottom button { width: 40px; height: 40px; border: 1px solid #3a302a; background: #16110e; color: var(--on-dark); cursor: pointer; font-size: 17px; display: grid; place-items: center; }
+  .reader-bottom { display: flex; align-items: center; justify-content: center; gap: 22px; padding-inline: 16px; padding-block: 4px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .reader-bottom button { width: 36px; height: 36px; border: 1px solid #3a302a; background: #16110e; color: var(--on-dark); cursor: pointer; font-size: 17px; display: grid; place-items: center; }
   .reader-bottom button:disabled { opacity: .3; cursor: default; }
   .reader-bottom output { min-width: 96px; text-align: center; font-size: 11px; letter-spacing: .08em; color: var(--on-dark-muted); font-variant-numeric: tabular-nums; }
 
   /* ---------- 페이지 ---------- */
-  .page { position: absolute; inset: 0; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; padding: 7% 8.5% 5.5%; }
+  .page { position: absolute; inset: 0; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; padding: 26px 24px 16px; font-size: 12.5px; line-height: 1.8; }
   .page::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 22px; background: linear-gradient(to right, rgba(0,0,0,.08), transparent); pointer-events: none; }
-  .run { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: .16em; color: #a59a90; }
+  .run { display: flex; justify-content: space-between; font-size: 8.5px; letter-spacing: .14em; color: #a59a90; line-height: 1.4; }
   .run b { color: var(--red); font-weight: 700; }
   .folio { margin-top: auto; padding-top: 10px; text-align: center; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .1em; }
-  .page h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(24px, 4.2vh, 34px); letter-spacing: -0.01em; line-height: 1.1; }
+  .page h2 { font-family: var(--f-display); font-weight: 400; font-size: 23px; letter-spacing: -0.01em; line-height: 1.15; }
   .page h2 .fire { color: var(--red); }
-  .page .eyebrow { font-size: 10px; letter-spacing: .22em; color: var(--ember); font-weight: 700; margin-bottom: 6px; }
+  .page .eyebrow { font-size: 9px; letter-spacing: .22em; color: var(--ember); font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
+  .page .head { margin-top: 22px; }
+  .page .src { margin-top: 10px; font-size: 9.5px; line-height: 1.5; color: #a59a90; }
   img { -webkit-user-drag: none; }
 
   /* 표지: 종이 위에 검은 무대를 한 판 깔고 그 위에 탈 */
@@ -110,43 +112,52 @@
   .cover::after { background: linear-gradient(to right, rgba(0,0,0,.35), transparent); }
   .cover .glow { position: absolute; inset: 0; background: radial-gradient(70% 45% at 50% 30%, rgba(242,106,33,.35), rgba(227,20,31,.12) 45%, transparent 70%); }
   .cover .inner { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8% 8% 6%; }
-  .cover .cmask { width: 66%; margin-top: -4%; }
+  .cover .cmask { width: 92%; margin-top: -6%; }
   .cover .cmask img { width: 100%; display: block; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24%); mask-image: linear-gradient(to bottom, transparent 0, #000 24%); }
-  .cover .clogo { width: 78%; margin-top: 2%; }
+  .cover .clogo { width: 88%; margin-top: 3%; }
   .cover .cband { width: calc(100% + 16%); margin-top: 4%; padding-block: 6px; background: #000; font-size: 10.5px; font-weight: 700; }
-  .cover .ctitle { margin-top: 5%; font-family: var(--f-display); line-height: 1; }
-  .cover .ctitle .onki { color: var(--ember); font-size: 14px; display: block; margin-bottom: 4px; }
-  .cover .ctitle .big { font-size: clamp(34px, 7.2vh, 54px); }
+  .cover .ctitle { margin-top: 9%; font-family: var(--f-display); line-height: 1; }
+  .cover .ctitle .onki { color: var(--ember); font-size: 17px; display: block; margin-bottom: 6px; }
+  .cover .ctitle .big { font-size: clamp(40px, 13vw, 60px); }
   .cover .ctitle .fire { color: var(--red); text-shadow: 0 0 18px rgba(227,20,31,.5); }
   .cover .ctitle .eul { font-size: .45em; vertical-align: .8em; }
   .cover .cfoot { margin-top: auto; font-size: 11px; color: var(--on-dark-muted); line-height: 1.7; }
   .cover .cfoot b { color: var(--gold); font-family: var(--f-display); font-weight: 400; font-size: 15px; letter-spacing: .02em; }
 
-  .contents ol { list-style: none; margin-top: 18px; display: grid; border-top: 2px solid var(--ink); }
-  .contents li button { width: 100%; display: grid; grid-template-columns: 26px 1fr auto; align-items: baseline; gap: 10px; padding: 13px 0; border: 0; border-bottom: 1px solid var(--rule); background: none; text-align: left; cursor: pointer; }
-  .contents .n { font-family: var(--f-display); font-size: 15px; color: var(--red); }
-  .contents .t { min-width: 0; font-weight: 700; font-size: 14px; }
+  .contents ol { list-style: none; margin-top: 16px; display: grid; border-top: 2px solid var(--ink); }
+  .contents li button { width: 100%; display: grid; grid-template-columns: 26px 1fr auto; align-items: baseline; gap: 10px; padding: 11px 0; border: 0; border-bottom: 1px solid var(--rule); background: none; text-align: left; cursor: pointer; }
+  .contents .n { font-family: var(--f-display); font-size: 13px; color: var(--red); }
+  .contents .t { min-width: 0; font-weight: 700; font-size: 13px; line-height: 1.4; }
   .contents .t small { display: block; font-weight: 400; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
   .contents .p { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
-  .greeting .lede { margin-top: 14px; font-size: clamp(12px, 1.75vh, 13.5px); line-height: 1.95; font-weight: 400; word-break: keep-all; display: grid; gap: 10px; }
-  .greeting .lede .q { font-family: var(--f-display); font-weight: 400; font-size: 1.35em; line-height: 1.4; color: var(--red); padding-block: 4px; }
+  .greeting .lede { margin-top: 16px; font-size: 13px; line-height: 1.95; font-weight: 400; word-break: keep-all; display: grid; gap: 12px; }
+  .greeting .lede .q { font-family: var(--f-display); font-weight: 400; font-size: 18px; line-height: 1.45; color: var(--red); padding-block: 10px; border-block: 1px solid var(--rule); text-align: center; }
   .greeting .sign { margin-top: 14px; text-align: right; font-size: 11px; color: var(--muted); }
   .greeting .sign b { color: var(--ink); font-weight: 700; }
 
   .info dl { margin-top: 16px; display: grid; border-top: 2px solid var(--ink); }
-  .info dl div { display: grid; grid-template-columns: 52px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; line-height: 1.6; }
+  .info dl div { display: grid; grid-template-columns: 46px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; line-height: 1.65; }
   .info dt { color: var(--muted); font-size: 11px; padding-top: 1px; }
   .info dd { word-break: keep-all; }
-  .info .bigdate { font-family: var(--f-display); font-size: 21px; color: var(--navy); line-height: 1.2; }
-  .info .bigvenue { font-family: var(--f-display); font-size: 21px; color: var(--blue); line-height: 1.2; }
+  .info .bigdate { font-family: var(--f-display); font-size: 17px; color: var(--navy); line-height: 1.3; }
+  .info .bigvenue { font-family: var(--f-display); font-size: 17px; color: var(--blue); line-height: 1.3; }
 
+  .about .lede { margin-top: 14px; word-break: keep-all; display: grid; gap: 10px; }
+  .about .facts { margin-top: 14px; display: grid; border-top: 2px solid var(--ink); }
+  .about .facts div { display: grid; grid-template-columns: 58px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rule); line-height: 1.6; }
+  .about .facts dt { color: var(--muted); font-size: 11px; padding-top: 1px; }
+  .acts ol { margin-top: 14px; list-style: none; display: grid; border-top: 2px solid var(--ink); counter-reset: act; }
+  .acts li { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  .acts li .no { font-family: var(--f-display); font-size: 12px; color: var(--red); white-space: nowrap; }
+  .acts li b { font-size: 14px; font-weight: 700; }
+  .acts .note { margin-top: 12px; font-size: 11px; line-height: 1.7; color: var(--muted); word-break: keep-all; }
   .credits dl { margin-top: 16px; display: grid; gap: 0; border-top: 2px solid var(--ink); }
-  .credits dl div { display: grid; grid-template-columns: 78px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; }
+  .credits dl div { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; line-height: 1.6; }
   .credits dt { color: var(--muted); font-size: 11px; padding-top: 1px; }
   .credits dd { font-weight: 500; word-break: keep-all; }
 
-  .map .place { margin-top: 18px; font-family: var(--f-display); font-size: 26px; color: var(--blue); line-height: 1.1; }
+  .map .place { margin-top: 16px; font-family: var(--f-display); font-size: 19px; color: var(--blue); line-height: 1.2; }
   .map .addr { margin-top: 8px; font-size: 12.5px; line-height: 1.7; word-break: keep-all; }
   .map .pin { margin-top: 18px; flex: 1; min-height: 0; border: 1px solid var(--rule); background:
       repeating-linear-gradient(0deg, transparent 0 23px, #eee7dd 23px 24px), repeating-linear-gradient(90deg, transparent 0 23px, #eee7dd 23px 24px), #f6f1ea;
@@ -239,7 +250,7 @@
   const run = (no) => `<p class="run"><span>온기 : <b>불씨</b>를 품다</span><span>국가무형유산 강령탈춤</span></p>`;
 
   // ---------- 페이지 ----------
-  const LABELS = ['표지', '목차', '인사말 1/2', '인사말 2/2', '공연 안내', '제작진', '오시는 길', '함께 보기'];
+  const LABELS = ['표지', '목차', '인사말 1/2', '인사말 2/2', '공연 안내', '강령탈춤이란', '일곱 과장', '제작진', '오시는 길', '함께 보기'];
   const pages = [
     el(`<section class="page cover" aria-label="표지">
       <div class="glow"></div>
@@ -253,19 +264,20 @@
     </section>`),
     el(`<section class="page contents" aria-label="목차">
       ${run()}
-      <div style="margin-top:9%"><p class="eyebrow">CONTENTS</p><h2>목차</h2></div>
+      <div class="head"><p class="eyebrow">CONTENTS</p><h2>목차</h2></div>
       <ol>
         <li><button type="button" data-goto="2"><span class="n">01</span><span class="t">인사말<small>온기 : 불씨를 품다</small></span><span class="p">2</span></button></li>
         <li><button type="button" data-goto="4"><span class="n">02</span><span class="t">공연 안내<small>일시 · 장소 · 주최 · 주관</small></span><span class="p">4</span></button></li>
-        <li><button type="button" data-goto="5"><span class="n">03</span><span class="t">제작진<small>총감독 · 연출 및 지도 · 기획</small></span><span class="p">5</span></button></li>
-        <li><button type="button" data-goto="6"><span class="n">04</span><span class="t">오시는 길<small>민속극장 풍류</small></span><span class="p">6</span></button></li>
-        <li><button type="button" data-goto="7"><span class="n">05</span><span class="t">함께 보기<small>QR · 링크 공유</small></span><span class="p">7</span></button></li>
+        <li><button type="button" data-goto="5"><span class="n">03</span><span class="t">강령탈춤이란<small>국가무형유산 · 일곱 과장</small></span><span class="p">5</span></button></li>
+        <li><button type="button" data-goto="7"><span class="n">04</span><span class="t">제작진<small>총감독 · 연출 및 지도 · 기획</small></span><span class="p">7</span></button></li>
+        <li><button type="button" data-goto="8"><span class="n">05</span><span class="t">오시는 길<small>민속극장 풍류</small></span><span class="p">8</span></button></li>
+        <li><button type="button" data-goto="9"><span class="n">06</span><span class="t">함께 보기<small>QR · 링크 공유</small></span><span class="p">9</span></button></li>
       </ol>
       <p class="folio">1</p>
     </section>`),
     el(`<section class="page greeting" aria-label="인사말 1">
       ${run()}
-      <div style="margin-top:8%"><p class="eyebrow">GREETING</p><h2>인사말</h2></div>
+      <div class="head"><p class="eyebrow">GREETING</p><h2>인사말</h2></div>
       <div class="lede">
         <p>불은 한순간에 타오르지 않습니다. 불은 불씨 하나가 남아 있고, 그 불씨를 품는 온기가 있을 때 비로소 다시 빛을 냅니다.</p>
         <p>강령탈춤연구회 중천무 역시 수많은 사람들의 마음과 시간, 그리고 땀이 모여 오늘까지 이어져 왔습니다. 때로는 뜨겁게 타올랐고, 때로는 바람 앞의 불씨처럼 흔들리기도 했습니다.</p>
@@ -276,7 +288,7 @@
     </section>`),
     el(`<section class="page greeting" aria-label="인사말 2">
       ${run()}
-      <div class="lede" style="margin-top:9%">
+      <div class="lede" style="margin-top:22px">
         <p>이번 정기공연 ‘온기 : 불씨를 품다’는 그 질문에서 시작되었습니다. 전통을 이어간다는 것은 단지 춤사위와 기예를 전하는 일이 아니라, 사람의 마음을 잇고, 함께 품으며, 서로의 온기로 작은 불씨를 지켜가는 일이라 믿습니다.</p>
         <p>남아 있는 온기가 서로의 마음을 다시 켜고(ON), 그 온기가 불씨를 품어 꺼지지 않는 불꽃이 되기를 바랍니다.</p>
         <p>오늘 이 무대가 강령탈춤을 사랑하는 모든 분들의 마음속에 작은 온기로 남아, 다시 함께 걸어갈 내일을 밝히는 불씨가 되기를 소망합니다.</p>
@@ -286,7 +298,7 @@
     </section>`),
     el(`<section class="page info" aria-label="공연 안내">
       ${run()}
-      <div style="margin-top:8%"><p class="eyebrow">PERFORMANCE</p><h2>공연 안내</h2></div>
+      <div class="head"><p class="eyebrow">PERFORMANCE</p><h2>공연 안내</h2></div>
       <dl>
         <div><dt>공연</dt><dd>국가무형유산 강령탈춤<br>2026년 정기공연 <b>‘온기 : 불씨를 품다’</b></dd></div>
         <div><dt>일시</dt><dd><span class="bigdate">2026년 11월 14일(토)<br>오후 2시</span></dd></div>
@@ -296,9 +308,39 @@
       </dl>
       <p class="folio">4</p>
     </section>`),
+    el(`<section class="page about" aria-label="강령탈춤이란">
+      ${run()}
+      <div class="head"><p class="eyebrow">GANGNYEONG TALCHUM</p><h2>강령탈춤이란</h2></div>
+      <div class="lede">
+        <p>강령탈춤은 황해도 강령 지방에서 전해 내려온 탈춤입니다. 탈을 쓴 광대들이 춤과 재담, 노래로 양반과 파계승을 풍자하고, 늙은 부부의 갈등을 통해 서민의 삶을 그려 냅니다.</p>
+        <p>1970년 7월 22일 국가무형문화재 제34호로 지정되었고, 지금은 국가무형유산으로 이어지고 있습니다.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>지정</dt><dd>1970. 7. 22 국가무형문화재 제34호<br>현 국가무형유산</dd></div>
+        <div><dt>전승 지역</dt><dd>황해도 강령</dd></div>
+        <div><dt>구성</dt><dd>일곱 과장 (다음 쪽)</dd></div>
+      </dl>
+      <p class="src">출처: 국가문화유산포털 「강령탈춤」, 국립국악원 국악사전</p>
+      <p class="folio">5</p>
+    </section>`),
+    el(`<section class="page acts" aria-label="일곱 과장">
+      ${run()}
+      <div class="head"><p class="eyebrow">SEVEN ACTS</p><h2>강령탈춤의 일곱 과장</h2></div>
+      <ol>
+        <li><span class="no">제1과장</span><b>사자춤</b></li>
+        <li><span class="no">제2과장</span><b>말뚝이춤</b></li>
+        <li><span class="no">제3과장</span><b>목중춤</b></li>
+        <li><span class="no">제4과장</span><b>상좌춤</b></li>
+        <li><span class="no">제5과장</span><b>양반과 말뚝이춤</b></li>
+        <li><span class="no">제6과장</span><b>노승과 취발이춤</b></li>
+        <li><span class="no">제7과장</span><b>영감과 할미광대춤</b></li>
+      </ol>
+      <p class="note">국가문화유산포털에 실린 전통 과장 구성입니다. 이번 공연의 실제 순서와 출연진은 공연 당일 안내를 따릅니다.</p>
+      <p class="folio">6</p>
+    </section>`),
     el(`<section class="page credits" aria-label="제작진">
       ${run()}
-      <div style="margin-top:8%"><p class="eyebrow">CREDITS</p><h2>제작진</h2></div>
+      <div class="head"><p class="eyebrow">CREDITS</p><h2>제작진</h2></div>
       <dl>
         <div><dt>총감독</dt><dd>윤준석</dd></div>
         <div><dt>연출 및 지도</dt><dd>이혜경 · 옥용준 · 이우순</dd></div>
@@ -307,11 +349,11 @@
         <div><dt>의상</dt><dd>김미숙 · 고미선</dd></div>
         <div><dt>소도구</dt><dd>정재일</dd></div>
       </dl>
-      <p class="folio">5</p>
+      <p class="folio">7</p>
     </section>`),
     el(`<section class="page map" aria-label="오시는 길">
       ${run()}
-      <div style="margin-top:8%"><p class="eyebrow">LOCATION</p><h2>오시는 길</h2></div>
+      <div class="head"><p class="eyebrow">LOCATION</p><h2>오시는 길</h2></div>
       <p class="place">민속극장 풍류</p>
       <p class="addr">서울특별시 강남구 봉은사로 406<br>삼성동, 서울중요무형문화재전수회관</p>
       <div class="pin" aria-hidden="true"><i></i><span>${PLACE}</span></div>
@@ -319,7 +361,7 @@
         <a class="solid" href="https://map.naver.com/p/search/${encodeURIComponent(PLACE)}" target="_blank" rel="noopener" data-link>네이버 지도 ↗</a>
         <a href="https://map.kakao.com/?q=${encodeURIComponent(PLACE)}" target="_blank" rel="noopener" data-link>카카오맵 ↗</a>
       </div>
-      <p class="folio">6</p>
+      <p class="folio">8</p>
     </section>`),
     el(`<section class="page share" aria-label="함께 보기">
       <div class="glow"></div>
@@ -344,10 +386,11 @@
   const M_CANVAS = 60; // 그림자용 여백
 
   function layout() {
-    const availW = stage.clientWidth - 32;
-    const availH = stage.clientHeight - 16;
-    let w = Math.min(availW, 560);
-    let h = Math.min(availH, w * 1.45);
+    const availW = stage.clientWidth - 20;
+    const availH = stage.clientHeight - 8;
+    // 휴대폰에서는 화면 높이를 거의 다 쓰는 세로로 긴 종이(최대 1:1.9), 넓은 화면에서는 폭 520px
+    let w = Math.min(availW, 520);
+    let h = Math.min(availH, w * 1.9);
     if (h < w * 1.3) w = h / 1.3;
     W = Math.round(w); H = Math.round(h);
     book.style.width = W + 'px';
