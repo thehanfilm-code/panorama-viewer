@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0908">
+<meta property="og:title" content="온기 : 불씨를 품다 — 국가무형유산 강령탈춤 2026년 정기공연">
+<meta property="og:description" content="2026년 11월 14일(토) 오후 2시 · 민속극장 풍류">
+<meta property="og:image" content="https://thehanfilm-code.github.io/panorama-viewer/onki-2026/img/mask.png">
+<title>온기 : 불씨를 품다</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Nanum+Brush+Script&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  /* Layout: 어두운 무대. 첫 화면은 불씨가 피어오르며 탈과 제목이 켜지는 '막 오름',
+     Continue 후에는 검은 무대 위 한 장짜리 책(흰 종이)을 모서리째 넘긴다.
+     포스터의 빨강·주황·검정·남색을 그대로 쓰는 단일 다크 테마. */
+  :root {
+    --stage: #0b0908;
+    --stage-2: #17110e;
+    --paper: #fbf8f3;
+    --ink: #121010;
+    --muted: #776d66;
+    --rule: #e6ded4;
+    --red: #e3141f;
+    --ember: #f26a21;
+    --gold: #f6b23c;
+    --navy: #2e3192;
+    --blue: #0b72bb;
+    --on-dark: #f3ece4;
+    --on-dark-muted: #a99e94;
+    --f-display: 'Black Han Sans', 'Noto Sans KR', sans-serif;
+    --f-sans: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+    --f-brush: 'Nanum Brush Script', 'Noto Sans KR', cursive;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body { background: var(--stage); color: var(--on-dark); font-family: var(--f-sans); overflow: hidden; -webkit-tap-highlight-color: transparent; }
+  button, a { font: inherit; color: inherit; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+  /* ---------- 막 오름 (첫 화면) ---------- */
+  .opening { position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden; background: radial-gradient(120% 70% at 50% 30%, #2a130b 0%, var(--stage-2) 38%, var(--stage) 72%); transition: opacity .7s ease; }
+  .opening.leaving { opacity: 0; pointer-events: none; }
+  #embers { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .op-inner { position: relative; max-width: 560px; margin: 0 auto; padding-inline: 20px; padding-block: calc(18px + env(safe-area-inset-top, 0px)) calc(36px + env(safe-area-inset-bottom, 0px)); display: grid; justify-items: center; text-align: center; gap: 0; }
+  .op-top { width: 100%; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: .24em; color: var(--on-dark-muted); text-transform: uppercase; }
+  .mask-wrap { position: relative; width: min(76vw, 360px); margin-top: 18px; }
+  .mask-wrap::before { content: ""; position: absolute; inset: 8% 6% 4%; border-radius: 50%; background: radial-gradient(circle, rgba(242,106,33,.55), rgba(227,20,31,.18) 45%, transparent 70%); filter: blur(18px); animation: breathe 4.8s ease-in-out infinite; }
+  .mask-wrap img { position: relative; width: 100%; display: block; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%); mask-image: linear-gradient(to bottom, transparent 0, #000 22%); }
+  .logo { width: min(82vw, 400px); margin-top: 10px; filter: drop-shadow(0 0 10px rgba(242,106,33,.35)); }
+  .band { width: calc(100% + 40px); margin-top: 18px; padding-block: 9px; background: #000; border-block: 1px solid #2a2320; font-size: 13px; font-weight: 700; letter-spacing: .02em; }
+  .band span { color: var(--on-dark-muted); font-weight: 500; margin-left: 10px; }
+  .title { margin-top: 22px; display: grid; justify-items: center; gap: 4px; }
+  .title .onki { font-family: var(--f-display); color: var(--ember); font-size: 22px; letter-spacing: .02em; line-height: 1; }
+  .title .onki small { font-family: var(--f-sans); font-weight: 900; font-size: 13px; margin-left: 6px; color: var(--gold); }
+  .title h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(54px, 17vw, 92px); line-height: .98; letter-spacing: -0.01em; }
+  .title h1 .fire { color: var(--red); text-shadow: 0 0 22px rgba(227,20,31,.55), 0 0 60px rgba(242,106,33,.35); }
+  .title h1 .eul { font-size: .42em; vertical-align: .9em; margin-left: .04em; }
+  .title h1 .pum { display: block; color: var(--on-dark); }
+  .when { margin-top: 26px; display: grid; gap: 4px; }
+  .when .date { font-family: var(--f-display); font-size: clamp(22px, 6.4vw, 30px); color: var(--gold); letter-spacing: .01em; }
+  .when .venue { font-family: var(--f-display); font-size: clamp(30px, 9vw, 44px); color: var(--on-dark); line-height: 1.05; }
+  .when .addr { font-size: 11px; color: var(--on-dark-muted); }
+  .open-btn { margin-top: 26px; display: inline-flex; align-items: center; gap: 14px; padding: 16px 26px; border: 1px solid var(--ember); background: linear-gradient(180deg, #e3141f, #b30f17); color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .03em; cursor: pointer; box-shadow: 0 0 0 0 rgba(242,106,33,.6); animation: pulse 2.6s ease-out infinite 2.4s; }
+  .open-btn span { font-size: 11px; letter-spacing: .24em; text-transform: uppercase; opacity: .85; }
+  .op-note { margin-top: 14px; font-size: 11px; color: var(--on-dark-muted); }
+
+  /* 막 오름 연출: 순서대로 켜진다 */
+  .rise { opacity: 0; transform: translateY(14px); animation: rise .9s cubic-bezier(.2,.7,.2,1) forwards; }
+  .d1 { animation-delay: .15s } .d2 { animation-delay: .7s } .d3 { animation-delay: 1.15s } .d4 { animation-delay: 1.5s } .d5 { animation-delay: 1.9s } .d6 { animation-delay: 2.25s }
+  .ignite { opacity: 0; filter: brightness(.2) blur(3px); animation: ignite 1.4s ease-out forwards .2s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @keyframes ignite { 0% { opacity: 0; filter: brightness(.2) blur(4px); } 45% { opacity: 1; filter: brightness(1.5) blur(1px); } 100% { opacity: 1; filter: none; } }
+  @keyframes breathe { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(242,106,33,.55); } 70% { box-shadow: 0 0 0 16px rgba(242,106,33,0); } 100% { box-shadow: 0 0 0 0 rgba(242,106,33,0); } }
+
+  /* ---------- 책 ---------- */
+  .reader { position: fixed; inset: 0; display: flex; flex-direction: column; background: radial-gradient(90% 60% at 50% 45%, #1c1410 0%, var(--stage) 70%); }
+  .reader-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 16px; padding-block: calc(12px + env(safe-area-inset-top, 0px)) 8px; font-size: 12px; }
+  .reader-top .who { font-family: var(--f-display); font-size: 16px; letter-spacing: .01em; }
+  .reader-top .who b { color: var(--red); font-weight: 400; }
+  .reader-top nav { display: flex; gap: 2px; }
+  .link-btn { background: none; border: 0; padding: 8px 10px; cursor: pointer; font-size: 12px; color: var(--on-dark-muted); }
+  .link-btn:hover { color: var(--on-dark); }
+  .stage { flex: 1; min-height: 0; display: grid; place-items: center; padding-inline: 16px; padding-block: 8px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .book { position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 30px 80px rgba(0,0,0,.65), 0 0 120px rgba(242,106,33,.10); background: var(--paper); }
+  .slot { position: absolute; inset: 0; background: var(--paper); overflow: hidden; }
+  #curl { position: absolute; pointer-events: none; }
+  .reader-bottom { display: flex; align-items: center; justify-content: center; gap: 22px; padding-inline: 16px; padding-block: 6px calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .reader-bottom button { width: 40px; height: 40px; border: 1px solid #3a302a; background: #16110e; color: var(--on-dark); cursor: pointer; font-size: 17px; display: grid; place-items: center; }
+  .reader-bottom button:disabled { opacity: .3; cursor: default; }
+  .reader-bottom output { min-width: 96px; text-align: center; font-size: 11px; letter-spacing: .08em; color: var(--on-dark-muted); font-variant-numeric: tabular-nums; }
+
+  /* ---------- 페이지 ---------- */
+  .page { position: absolute; inset: 0; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; padding: 7% 8.5% 5.5%; }
+  .page::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 22px; background: linear-gradient(to right, rgba(0,0,0,.08), transparent); pointer-events: none; }
+  .run { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: .16em; color: #a59a90; }
+  .run b { color: var(--red); font-weight: 700; }
+  .folio { margin-top: auto; padding-top: 10px; text-align: center; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .1em; }
+  .page h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(24px, 4.2vh, 34px); letter-spacing: -0.01em; line-height: 1.1; }
+  .page h2 .fire { color: var(--red); }
+  .page .eyebrow { font-size: 10px; letter-spacing: .22em; color: var(--ember); font-weight: 700; margin-bottom: 6px; }
+  img { -webkit-user-drag: none; }
+
+  /* 표지: 종이 위에 검은 무대를 한 판 깔고 그 위에 탈 */
+  .cover { padding: 0; background: #0c0a09; color: var(--on-dark); }
+  .cover::after { background: linear-gradient(to right, rgba(0,0,0,.35), transparent); }
+  .cover .glow { position: absolute; inset: 0; background: radial-gradient(70% 45% at 50% 30%, rgba(242,106,33,.35), rgba(227,20,31,.12) 45%, transparent 70%); }
+  .cover .inner { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8% 8% 6%; }
+  .cover .cmask { width: 66%; margin-top: -4%; }
+  .cover .cmask img { width: 100%; display: block; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24%); mask-image: linear-gradient(to bottom, transparent 0, #000 24%); }
+  .cover .clogo { width: 78%; margin-top: 2%; }
+  .cover .cband { width: calc(100% + 16%); margin-top: 4%; padding-block: 6px; background: #000; font-size: 10.5px; font-weight: 700; }
+  .cover .ctitle { margin-top: 5%; font-family: var(--f-display); line-height: 1; }
+  .cover .ctitle .onki { color: var(--ember); font-size: 14px; display: block; margin-bottom: 4px; }
+  .cover .ctitle .big { font-size: clamp(34px, 7.2vh, 54px); }
+  .cover .ctitle .fire { color: var(--red); text-shadow: 0 0 18px rgba(227,20,31,.5); }
+  .cover .ctitle .eul { font-size: .45em; vertical-align: .8em; }
+  .cover .cfoot { margin-top: auto; font-size: 11px; color: var(--on-dark-muted); line-height: 1.7; }
+  .cover .cfoot b { color: var(--gold); font-family: var(--f-display); font-weight: 400; font-size: 15px; letter-spacing: .02em; }
+
+  .contents ol { list-style: none; margin-top: 18px; display: grid; border-top: 2px solid var(--ink); }
+  .contents li button { width: 100%; display: grid; grid-template-columns: 26px 1fr auto; align-items: baseline; gap: 10px; padding: 13px 0; border: 0; border-bottom: 1px solid var(--rule); background: none; text-align: left; cursor: pointer; }
+  .contents .n { font-family: var(--f-display); font-size: 15px; color: var(--red); }
+  .contents .t { min-width: 0; font-weight: 700; font-size: 14px; }
+  .contents .t small { display: block; font-weight: 400; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+  .contents .p { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .greeting .lede { margin-top: 14px; font-size: clamp(12px, 1.75vh, 13.5px); line-height: 1.95; font-weight: 400; word-break: keep-all; display: grid; gap: 10px; }
+  .greeting .lede .q { font-family: var(--f-display); font-weight: 400; font-size: 1.35em; line-height: 1.4; color: var(--red); padding-block: 4px; }
+  .greeting .sign { margin-top: 14px; text-align: right; font-size: 11px; color: var(--muted); }
+  .greeting .sign b { color: var(--ink); font-weight: 700; }
+
+  .info dl { margin-top: 16px; display: grid; border-top: 2px solid var(--ink); }
+  .info dl div { display: grid; grid-template-columns: 52px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; line-height: 1.6; }
+  .info dt { color: var(--muted); font-size: 11px; padding-top: 1px; }
+  .info dd { word-break: keep-all; }
+  .info .bigdate { font-family: var(--f-display); font-size: 21px; color: var(--navy); line-height: 1.2; }
+  .info .bigvenue { font-family: var(--f-display); font-size: 21px; color: var(--blue); line-height: 1.2; }
+
+  .credits dl { margin-top: 16px; display: grid; gap: 0; border-top: 2px solid var(--ink); }
+  .credits dl div { display: grid; grid-template-columns: 78px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; }
+  .credits dt { color: var(--muted); font-size: 11px; padding-top: 1px; }
+  .credits dd { font-weight: 500; word-break: keep-all; }
+
+  .map .place { margin-top: 18px; font-family: var(--f-display); font-size: 26px; color: var(--blue); line-height: 1.1; }
+  .map .addr { margin-top: 8px; font-size: 12.5px; line-height: 1.7; word-break: keep-all; }
+  .map .pin { margin-top: 18px; flex: 1; min-height: 0; border: 1px solid var(--rule); background:
+      repeating-linear-gradient(0deg, transparent 0 23px, #eee7dd 23px 24px), repeating-linear-gradient(90deg, transparent 0 23px, #eee7dd 23px 24px), #f6f1ea;
+      display: grid; place-items: center; position: relative; }
+  .map .pin i { width: 18px; height: 18px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--red); box-shadow: 0 0 0 6px rgba(227,20,31,.15); }
+  .map .pin span { position: absolute; bottom: 10px; font-size: 10px; color: var(--muted); }
+  .map .btns { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .map .btns a { display: block; text-align: center; padding: 11px 8px; border: 1px solid var(--ink); text-decoration: none; font-size: 12px; font-weight: 700; color: var(--ink); }
+  .map .btns a.solid { background: var(--ink); color: var(--paper); }
+
+  .share { padding: 0; background: #0c0a09; color: var(--on-dark); }
+  .share::after { background: linear-gradient(to right, rgba(0,0,0,.35), transparent); }
+  .share .inner { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 8%; gap: 12px; }
+  .share .glow { position: absolute; inset: 0; background: radial-gradient(60% 40% at 50% 42%, rgba(242,106,33,.22), transparent 70%); }
+  .share .qrbox { position: relative; background: #fff; padding: 12px; width: 52%; }
+  .share .qrbox svg { display: block; width: 100%; height: auto; }
+  .share h3 { position: relative; font-family: var(--f-display); font-weight: 400; font-size: 20px; }
+  .share h3 .fire { color: var(--red); }
+  .share p { position: relative; font-size: 11.5px; line-height: 1.7; color: var(--on-dark-muted); word-break: keep-all; }
+  .share .url { font-size: 10px; color: var(--on-dark); word-break: break-all; }
+  .share .acts { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
+  .share .acts button { padding: 10px 14px; border: 1px solid #3a302a; background: #16110e; color: var(--on-dark); cursor: pointer; font-size: 11.5px; }
+  .share .acts button.solid { border-color: var(--red); background: var(--red); color: #fff; }
+  .share .slogo { position: relative; width: 62%; margin-top: 6px; opacity: .9; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise, .ignite { animation: none; opacity: 1; transform: none; filter: none; }
+    .mask-wrap::before, .open-btn { animation: none; }
+    .opening { transition: none; }
+  }
+</style>
+</head>
+<body>
+<section class="opening" id="intro" aria-label="온기 : 불씨를 품다">
+  <canvas id="embers" aria-hidden="true"></canvas>
+  <div class="op-inner">
+    <div class="mask-wrap ignite"><img src="img/mask-dark.png" alt="강령탈춤 사자탈을 닮은 붉은 탈 그림"></div>
+    <img class="logo rise d2" src="img/logo-dark.png" alt="강령탈춤연구회 中天舞">
+    <p class="band rise d3">국가무형유산 강령탈춤 <span>2026년 정기공연</span></p>
+    <div class="title rise d4">
+      <p class="onki">온기<small>ON 氣</small></p>
+      <h1><span class="fire">불씨</span><span class="eul">를</span><span class="pum">품다</span></h1>
+    </div>
+    <div class="when rise d5">
+      <p class="date">2026년 11월 14일(토) 오후 2시</p>
+      <p class="venue">민속극장 풍류</p>
+      <p class="addr">서울특별시 강남구 봉은사로 406 (삼성동, 서울중요무형문화재전수회관)</p>
+    </div>
+    <button class="open-btn rise d6" id="continue" type="button">프로그램북 열기 <span>Continue →</span></button>
+    <p class="op-note rise d6">책장을 옆으로 밀어 넘겨 보세요</p>
+  </div>
+</section>
+
+<section class="reader" id="reader" hidden aria-label="프로그램북">
+  <header class="reader-top">
+    <span class="who">온기 : <b>불씨</b>를 품다</span>
+    <nav>
+      <button class="link-btn" id="to-contents" type="button">목차</button>
+      <button class="link-btn" id="to-intro" type="button">처음 화면</button>
+    </nav>
+  </header>
+  <div class="stage" id="stage">
+    <div class="book" id="book">
+      <div class="slot" id="under"></div>
+      <div class="slot" id="top"></div>
+      <canvas id="curl"></canvas>
+    </div>
+  </div>
+  <nav class="reader-bottom" aria-label="페이지 이동">
+    <button id="prev" type="button" aria-label="이전 페이지">‹</button>
+    <output id="counter" aria-live="polite">표지</output>
+    <button id="next" type="button" aria-label="다음 페이지">›</button>
+  </nav>
+</section>
+
+<script>
+(function () {
+  const BOOK_URL = 'https://thehanfilm-code.github.io/panorama-viewer/onki-2026/';
+  const PLACE = '서울중요무형문화재전수회관';
+  const QR_SVG = `<svg role="img" aria-label="프로그램북 QR 코드" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#121010" d="M0 0.5h7m2 0h1m1 0h1m1 0h1m2 0h5m2 0h1m2 0h7M0 1.5h1m5 0h1m2 0h2m2 0h6m1 0h2m4 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m2 0h4m1 0h1m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h5m2 0h1m2 0h3m2 0h1m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h1m1 0h1m2 0h1m1 0h1m6 0h1m1 0h1m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m2 0h2m2 0h2m1 0h4m1 0h1M0 8.5h1m1 0h5m2 0h1m1 0h3m1 0h3m1 0h1m2 0h1m1 0h1m1 0h5M0 9.5h1m1 0h1m1 0h2m3 0h1m2 0h1m3 0h6m1 0h1m2 0h2m1 0h2m1 0h1M2 10.5h2m1 0h2m2 0h1m5 0h1m2 0h1m1 0h3m1 0h1m3 0h1m1 0h1M0 11.5h1m1 0h4m3 0h1m1 0h1m2 0h2m3 0h1m1 0h2m1 0h1m1 0h1m1 0h5M0 12.5h1m1 0h1m3 0h3m1 0h3m4 0h2m3 0h2m1 0h1m2 0h2m1 0h2M1 13.5h4m3 0h1m1 0h2m1 0h2m1 0h1m1 0h6m2 0h1m2 0h1m1 0h2M0 14.5h3m3 0h1m2 0h3m2 0h1m5 0h1m1 0h1m2 0h2m1 0h2m1 0h1M1 15.5h2m1 0h2m3 0h1m1 0h1m2 0h3m2 0h3m3 0h2m1 0h3M1 16.5h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m2 0h4m1 0h3m2 0h1M3 17.5h1m3 0h4m3 0h1m1 0h1m1 0h4m1 0h1m1 0h3m1 0h2m1 0h1M2 18.5h1m1 0h3m2 0h1m1 0h5m2 0h1m1 0h1m1 0h1m4 0h2m1 0h2M0 19.5h1m1 0h4m1 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h3m2 0h1m1 0h5M2 20.5h1m1 0h1m1 0h1m2 0h2m4 0h1m1 0h3m2 0h1m1 0h2m1 0h3m2 0h1M0 21.5h1m2 0h1m1 0h1m1 0h1m2 0h1m2 0h5m1 0h2m2 0h2m1 0h1m3 0h1m1 0h1M0 22.5h1m1 0h1m1 0h1m1 0h3m2 0h1m2 0h2m1 0h1m2 0h2m3 0h1m1 0h2m1 0h2M0 23.5h1m2 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m2 0h5m1 0h1m3 0h3m1 0h1M0 24.5h1m3 0h3m2 0h4m1 0h4m1 0h1m2 0h1m1 0h5m2 0h1M8 25.5h2m1 0h3m2 0h1m1 0h2m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1M0 26.5h7m3 0h1m1 0h1m2 0h3m2 0h5m1 0h1m1 0h1m1 0h2M0 27.5h1m5 0h1m1 0h4m1 0h1m1 0h1m4 0h5m3 0h3m1 0h1M0 28.5h1m1 0h3m1 0h1m1 0h3m2 0h1m3 0h3m2 0h1m1 0h6m1 0h2M0 29.5h1m1 0h3m1 0h1m1 0h2m4 0h2m3 0h1m2 0h1m1 0h2m2 0h1m1 0h3M0 30.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h4m3 0h2m3 0h2m1 0h2M0 31.5h1m5 0h1m2 0h2m5 0h1m2 0h1m1 0h1m3 0h2m1 0h3M0 32.5h7m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg>
+`;
+
+  const $ = (id) => document.getElementById(id);
+  const intro = $('intro'), reader = $('reader'), stage = $('stage'), book = $('book');
+  const under = $('under'), top = $('top'), curl = $('curl'), ctx = curl.getContext('2d');
+  const prevBtn = $('prev'), nextBtn = $('next'), counter = $('counter');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function el(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+  const run = (no) => `<p class="run"><span>온기 : <b>불씨</b>를 품다</span><span>국가무형유산 강령탈춤</span></p>`;
+
+  // ---------- 페이지 ----------
+  const LABELS = ['표지', '목차', '인사말 1/2', '인사말 2/2', '공연 안내', '제작진', '오시는 길', '함께 보기'];
+  const pages = [
+    el(`<section class="page cover" aria-label="표지">
+      <div class="glow"></div>
+      <div class="inner">
+        <div class="cmask"><img src="img/mask-dark.png" alt="" draggable="false"></div>
+        <img class="clogo" src="img/logo-dark.png" alt="강령탈춤연구회 中天舞" draggable="false">
+        <p class="cband">국가무형유산 강령탈춤 2026년 정기공연</p>
+        <p class="ctitle"><span class="onki">온기 ON 氣</span><span class="big"><span class="fire">불씨</span><span class="eul">를</span> 품다</span></p>
+        <p class="cfoot"><b>2026. 11. 14 (토) 오후 2시</b><br>민속극장 풍류</p>
+      </div>
+    </section>`),
+    el(`<section class="page contents" aria-label="목차">
+      ${run()}
+      <div style="margin-top:9%"><p class="eyebrow">CONTENTS</p><h2>목차</h2></div>
+      <ol>
+        <li><button type="button" data-goto="2"><span class="n">01</span><span class="t">인사말<small>온기 : 불씨를 품다</small></span><span class="p">2</span></button></li>
+        <li><button type="button" data-goto="4"><span class="n">02</span><span class="t">공연 안내<small>일시 · 장소 · 주최 · 주관</small></span><span class="p">4</span></button></li>
+        <li><button type="button" data-goto="5"><span class="n">03</span><span class="t">제작진<small>총감독 · 연출 및 지도 · 기획</small></span><span class="p">5</span></button></li>
+        <li><button type="button" data-goto="6"><span class="n">04</span><span class="t">오시는 길<small>민속극장 풍류</small></span><span class="p">6</span></button></li>
+        <li><button type="button" data-goto="7"><span class="n">05</span><span class="t">함께 보기<small>QR · 링크 공유</small></span><span class="p">7</span></button></li>
+      </ol>
+      <p class="folio">1</p>
+    </section>`),
+    el(`<section class="page greeting" aria-label="인사말 1">
+      ${run()}
+      <div style="margin-top:8%"><p class="eyebrow">GREETING</p><h2>인사말</h2></div>
+      <div class="lede">
+        <p>불은 한순간에 타오르지 않습니다. 불은 불씨 하나가 남아 있고, 그 불씨를 품는 온기가 있을 때 비로소 다시 빛을 냅니다.</p>
+        <p>강령탈춤연구회 중천무 역시 수많은 사람들의 마음과 시간, 그리고 땀이 모여 오늘까지 이어져 왔습니다. 때로는 뜨겁게 타올랐고, 때로는 바람 앞의 불씨처럼 흔들리기도 했습니다.</p>
+        <p>지금 우리는 그 시간을 지나 다시 스스로에게 묻습니다.</p>
+        <p class="q">우리 안의 불씨는<br>아직 살아 있는가.</p>
+      </div>
+      <p class="folio">2</p>
+    </section>`),
+    el(`<section class="page greeting" aria-label="인사말 2">
+      ${run()}
+      <div class="lede" style="margin-top:9%">
+        <p>이번 정기공연 ‘온기 : 불씨를 품다’는 그 질문에서 시작되었습니다. 전통을 이어간다는 것은 단지 춤사위와 기예를 전하는 일이 아니라, 사람의 마음을 잇고, 함께 품으며, 서로의 온기로 작은 불씨를 지켜가는 일이라 믿습니다.</p>
+        <p>남아 있는 온기가 서로의 마음을 다시 켜고(ON), 그 온기가 불씨를 품어 꺼지지 않는 불꽃이 되기를 바랍니다.</p>
+        <p>오늘 이 무대가 강령탈춤을 사랑하는 모든 분들의 마음속에 작은 온기로 남아, 다시 함께 걸어갈 내일을 밝히는 불씨가 되기를 소망합니다.</p>
+      </div>
+      <p class="sign"><b>강령탈춤연구회 中天舞</b></p>
+      <p class="folio">3</p>
+    </section>`),
+    el(`<section class="page info" aria-label="공연 안내">
+      ${run()}
+      <div style="margin-top:8%"><p class="eyebrow">PERFORMANCE</p><h2>공연 안내</h2></div>
+      <dl>
+        <div><dt>공연</dt><dd>국가무형유산 강령탈춤<br>2026년 정기공연 <b>‘온기 : 불씨를 품다’</b></dd></div>
+        <div><dt>일시</dt><dd><span class="bigdate">2026년 11월 14일(토)<br>오후 2시</span></dd></div>
+        <div><dt>장소</dt><dd><span class="bigvenue">민속극장 풍류</span><br>서울특별시 강남구 봉은사로 406<br>(삼성동, 서울중요무형문화재전수회관)</dd></div>
+        <div><dt>주최</dt><dd>강령탈춤연구회</dd></div>
+        <div><dt>주관</dt><dd>우리문화전문연희단체 꾼 · 전통연희놀이연구소 · 탈무브먼트 · 예움회</dd></div>
+      </dl>
+      <p class="folio">4</p>
+    </section>`),
+    el(`<section class="page credits" aria-label="제작진">
+      ${run()}
+      <div style="margin-top:8%"><p class="eyebrow">CREDITS</p><h2>제작진</h2></div>
+      <dl>
+        <div><dt>총감독</dt><dd>윤준석</dd></div>
+        <div><dt>연출 및 지도</dt><dd>이혜경 · 옥용준 · 이우순</dd></div>
+        <div><dt>기획</dt><dd>김상훈 · 강경록</dd></div>
+        <div><dt>홍보</dt><dd>조은성 · 박선미</dd></div>
+        <div><dt>의상</dt><dd>김미숙 · 고미선</dd></div>
+        <div><dt>소도구</dt><dd>정재일</dd></div>
+      </dl>
+      <p class="folio">5</p>
+    </section>`),
+    el(`<section class="page map" aria-label="오시는 길">
+      ${run()}
+      <div style="margin-top:8%"><p class="eyebrow">LOCATION</p><h2>오시는 길</h2></div>
+      <p class="place">민속극장 풍류</p>
+      <p class="addr">서울특별시 강남구 봉은사로 406<br>삼성동, 서울중요무형문화재전수회관</p>
+      <div class="pin" aria-hidden="true"><i></i><span>${PLACE}</span></div>
+      <div class="btns">
+        <a class="solid" href="https://map.naver.com/p/search/${encodeURIComponent(PLACE)}" target="_blank" rel="noopener" data-link>네이버 지도 ↗</a>
+        <a href="https://map.kakao.com/?q=${encodeURIComponent(PLACE)}" target="_blank" rel="noopener" data-link>카카오맵 ↗</a>
+      </div>
+      <p class="folio">6</p>
+    </section>`),
+    el(`<section class="page share" aria-label="함께 보기">
+      <div class="glow"></div>
+      <div class="inner">
+        <h3>이 <span class="fire">불씨</span>를 건네주세요</h3>
+        <div class="qrbox">${QR_SVG}</div>
+        <p>휴대폰 카메라로 QR을 찍으면<br>이 프로그램북이 열립니다.</p>
+        <p class="url">${BOOK_URL.replace('https://', '')}</p>
+        <div class="acts">
+          <button type="button" class="solid" data-copy>링크 복사</button>
+          <button type="button" data-goto="0">처음으로</button>
+          <button type="button" data-intro>막 오름 다시 보기</button>
+        </div>
+        <img class="slogo" src="img/logo-dark.png" alt="" draggable="false">
+      </div>
+    </section>`),
+  ];
+  const N = pages.length;
+
+  // ---------- 상태 · 크기 ----------
+  let cur = 0, W = 0, H = 0, flip = null, drag = null;
+  const M_CANVAS = 60; // 그림자용 여백
+
+  function layout() {
+    const availW = stage.clientWidth - 32;
+    const availH = stage.clientHeight - 16;
+    let w = Math.min(availW, 560);
+    let h = Math.min(availH, w * 1.45);
+    if (h < w * 1.3) w = h / 1.3;
+    W = Math.round(w); H = Math.round(h);
+    book.style.width = W + 'px';
+    book.style.height = H + 'px';
+    const dpr = window.devicePixelRatio || 1;
+    const cw = 2 * W + 2 * M_CANVAS, ch = H + 2 * M_CANVAS;
+    curl.style.left = -(W + M_CANVAS) + 'px';
+    curl.style.top = -M_CANVAS + 'px';
+    curl.style.width = cw + 'px';
+    curl.style.height = ch + 'px';
+    curl.width = Math.round(cw * dpr);
+    curl.height = Math.round(ch * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, (W + M_CANVAS) * dpr, M_CANVAS * dpr);
+  }
+
+  function rest() {
+    top.replaceChildren(pages[cur]);
+    top.style.clipPath = 'none';
+    under.replaceChildren();
+    ctx.clearRect(-W - M_CANVAS, -M_CANVAS, curl.width, curl.height);
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === N - 1;
+    counter.textContent = LABELS[cur];
+  }
+
+  async function copyLink(btn) {
+    const old = btn.textContent;
+    try { await navigator.clipboard.writeText(BOOK_URL); btn.textContent = '복사됨'; }
+    catch (e) { btn.textContent = '주소를 길게 눌러 복사하세요'; }
+    setTimeout(() => { btn.textContent = old; }, 2200);
+  }
+
+  // ---------- 종이 접힘 기하 ----------
+  // 모서리 C를 손가락 P까지 끌어오면, 접는 선은 C와 P의 수직이등분선
+  function clipHalf(poly, m, n, keepFold) {
+    const out = [];
+    const side = (p) => ((p[0] - m[0]) * n[0] + (p[1] - m[1]) * n[1]) * (keepFold ? 1 : -1);
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i], b = poly[(i + 1) % poly.length];
+      const da = side(a), db = side(b);
+      if (da >= 0) out.push(a);
+      if ((da >= 0) !== (db >= 0)) {
+        const t = da / (da - db);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    }
+    return out;
+  }
+
+  // 책등(왼쪽 모서리)에 붙어 있으므로 종이가 찢어지지 않는 범위로 제한
+  function constrain(p, cy) {
+    const s1 = [0, cy], s2 = [0, H - cy];
+    const lim = (q, s, r) => {
+      const dx = q[0] - s[0], dy = q[1] - s[1], d = Math.hypot(dx, dy);
+      return d > r ? [s[0] + dx * r / d, s[1] + dy * r / d] : q;
+    };
+    p = lim(p, s1, W);
+    return lim(p, s2, Math.hypot(W, H));
+  }
+
+  function path(poly) {
+    ctx.beginPath();
+    poly.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])));
+    ctx.closePath();
+  }
+
+  function draw() {
+    const C = flip.corner, P = flip.p;
+    ctx.clearRect(-W - M_CANVAS, -M_CANVAS, curl.width, curl.height);
+    const dx = C[0] - P[0], dy = C[1] - P[1], d = Math.hypot(dx, dy);
+    if (d < 0.5) { top.style.clipPath = 'none'; return; }
+    const n = [dx / d, dy / d];
+    const m = [(C[0] + P[0]) / 2, (C[1] + P[1]) / 2];
+    const rect = [[0, 0], [W, 0], [W, H], [0, H]];
+    const front = clipHalf(rect, m, n, false);
+    const fold = clipHalf(rect, m, n, true);
+    top.style.clipPath = front.length >= 3
+      ? 'polygon(' + front.map((p) => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')'
+      : 'polygon(0 0, 0 0, 0 0)';
+    if (fold.length < 3) return;
+    const reflect = (p) => {
+      const k = 2 * ((p[0] - m[0]) * n[0] + (p[1] - m[1]) * n[1]);
+      return [p[0] - k * n[0], p[1] - k * n[1]];
+    };
+    const flap = fold.map(reflect);
+    const progress = Math.min(1, d / (2 * W));
+    const strength = Math.sin(Math.min(1, progress * 1.15) * Math.PI) * 0.75 + 0.25;
+
+    // 1) 드러난 아래 페이지에 지는 그림자 (접힌 선 → 모서리 방향)
+    ctx.save();
+    path(fold);
+    ctx.clip();
+    const sl = Math.min(d / 2, 70);
+    let g = ctx.createLinearGradient(m[0], m[1], m[0] + n[0] * sl, m[1] + n[1] * sl);
+    g.addColorStop(0, `rgba(0,0,0,${0.30 * strength})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-W - M_CANVAS, -M_CANVAS, 2 * W + 2 * M_CANVAS, H + 2 * M_CANVAS);
+    ctx.restore();
+
+    // 2) 넘어오는 종이의 뒷면 (흰 종이) + 앞 페이지에 드리우는 그림자
+    ctx.save();
+    path(flap);
+    ctx.shadowColor = `rgba(0,0,0,${0.22 * strength})`;
+    ctx.shadowBlur = 26;
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.restore();
+    const far = [m[0] - n[0] * d / 2, m[1] - n[1] * d / 2];
+    g = ctx.createLinearGradient(m[0], m[1], far[0], far[1]);
+    g.addColorStop(0, 'rgba(0,0,0,0.12)');
+    g.addColorStop(0.10, 'rgba(0,0,0,0.03)');
+    g.addColorStop(0.35, 'rgba(255,255,255,0)');
+    g.addColorStop(1, 'rgba(0,0,0,0.06)');
+    path(flap);
+    ctx.fillStyle = g;
+    ctx.fill();
+    // 접힌 모서리의 가는 선
+    ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // dir +1: 지금 장을 넘김, -1: 왼쪽에 넘어가 있던 이전 장을 되돌림
+  function begin(dir, yInPage) {
+    const target = cur + dir;
+    if (flip || target < 0 || target >= N) return false;
+    const cy = yInPage > H / 2 ? H : 0;
+    const corner = [W, cy];
+    if (dir > 0) { top.replaceChildren(pages[cur]); under.replaceChildren(pages[target]); }
+    else { top.replaceChildren(pages[target]); under.replaceChildren(pages[cur]); }
+    flip = { dir, target, corner, cy, p: dir > 0 ? corner.slice() : [-W, cy], settling: false };
+    draw();
+    return true;
+  }
+
+  function settle(commit, arc) {
+    const f = flip;
+    const forward = f.dir > 0;
+    const to = commit === forward ? [-W, f.cy] : f.corner.slice();
+    const from = f.p.slice();
+    const dist = Math.hypot(to[0] - from[0], to[1] - from[1]);
+    const duration = reduceMotion ? 1 : 180 + 520 * dist / (2 * W);
+    const lift = arc ? (f.cy > 0 ? -1 : 1) * H * 0.16 : 0;
+    const t0 = performance.now();
+    f.settling = true;
+    function step(now) {
+      if (flip !== f) return;
+      const t = Math.min(1, (now - t0) / duration);
+      const e = arc ? (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2) : 1 - Math.pow(1 - t, 3);
+      const p = [from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e + lift * Math.sin(Math.PI * e)];
+      f.p = constrain(p, f.cy);
+      draw();
+      if (t < 1) requestAnimationFrame(step);
+      else { if (commit) cur = f.target; flip = null; rest(); }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function turn(dir) {
+    if (begin(dir, H * 0.75)) settle(true, true);
+  }
+
+  function goTo(i) {
+    if (flip || i === cur || i < 0 || i >= N) return;
+    if (Math.abs(i - cur) === 1) return turn(i - cur);
+    cur = i;
+    rest();
+  }
+
+  // ---------- 입력 ----------
+  stage.addEventListener('pointerdown', (e) => {
+    if (flip || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    const r = book.getBoundingClientRect();
+    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, py: e.clientY - r.top, t0: performance.now(),
+             mode: 'pending', lastX: e.clientX, lastT: performance.now(), vx: 0 };
+    stage.setPointerCapture(e.pointerId);
+  });
+
+  stage.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    if (drag.mode === 'pending') {
+      if (Math.hypot(dx, dy) < 8) return;
+      const dir = dx < 0 ? 1 : -1;
+      drag.mode = Math.abs(dx) > Math.abs(dy) && begin(dir, drag.py) ? 'flip' : 'none';
+    }
+    if (drag.mode !== 'flip') return;
+    const now = performance.now(), dt = now - drag.lastT;
+    if (dt > 0) drag.vx = 0.6 * ((e.clientX - drag.lastX) / dt) + 0.4 * drag.vx;
+    drag.lastX = e.clientX;
+    drag.lastT = now;
+    const c = flip.corner;
+    const p = flip.dir > 0 ? [c[0] + dx * 1.5, c[1] + dy * 0.5] : [-W + dx * 2, c[1] + dy * 0.5];
+    flip.p = constrain(p, flip.cy);
+    draw();
+  });
+
+  function endDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag;
+    drag = null;
+    if (d.mode === 'flip' && flip && !flip.settling) {
+      const idle = performance.now() - d.lastT > 100;
+      const speed = idle ? 0 : d.vx * -flip.dir; // 넘기는 방향 속도 px/ms
+      const done = flip.dir > 0 ? (W - flip.p[0]) / (2 * W) : (flip.p[0] + W) / (2 * W);
+      settle(e.type !== 'pointercancel' && (speed > 0.3 || (done > 0.3 && speed > -0.3)), false);
+      return;
+    }
+    if (d.mode === 'pending' && e.type === 'pointerup' && performance.now() - d.t0 < 400) {
+      const hit = document.elementFromPoint(e.clientX, e.clientY);
+      const go = hit && hit.closest('[data-goto]');
+      if (go) return goTo(Number(go.dataset.goto));
+      if (hit && hit.closest('[data-intro]')) return showIntro();
+      if (hit && hit.closest('[data-copy]')) return copyLink(hit.closest('[data-copy]'));
+      if (hit && hit.closest('[data-link]')) return; // 링크는 브라우저가 처리
+      const r = book.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      if (x > 0.7) turn(1);
+      else if (x < 0.3) turn(-1);
+    }
+  }
+  stage.addEventListener('pointerup', endDrag);
+  stage.addEventListener('pointercancel', endDrag);
+
+  // 키보드로 페이지 안 버튼 누르기
+  book.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const go = e.target.closest('[data-goto]');
+    if (go) { e.preventDefault(); goTo(Number(go.dataset.goto)); }
+    else if (e.target.closest('[data-intro]')) { e.preventDefault(); showIntro(); }
+  });
+
+  prevBtn.addEventListener('click', () => turn(-1));
+  nextBtn.addEventListener('click', () => turn(1));
+  $('to-contents').addEventListener('click', () => goTo(1));
+  $('to-intro').addEventListener('click', showIntro);
+
+  window.addEventListener('keydown', (e) => {
+    if (reader.hidden) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); turn(1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); turn(-1); }
+    else if (e.key === 'Home') goTo(0);
+    else if (e.key === 'End') goTo(N - 1);
+  });
+  window.addEventListener('resize', () => {
+    if (reader.hidden) return;
+    flip = null;
+    layout();
+    rest();
+  });
+
+
+  // ---------- 막 오름 ↔ 책 ----------
+  function showReader() {
+    reader.hidden = false;
+    layout();
+    rest();
+    intro.classList.add('leaving');
+    setTimeout(() => { intro.hidden = true; embers.stop(); }, reduceMotion ? 0 : 700);
+  }
+  function showIntro() {
+    flip = null;
+    intro.hidden = false;
+    intro.scrollTop = 0;
+    // 막 오름 연출을 다시 재생
+    intro.querySelectorAll('.rise, .ignite').forEach((n) => { n.style.animation = 'none'; void n.offsetWidth; n.style.animation = ''; });
+    requestAnimationFrame(() => intro.classList.remove('leaving'));
+    reader.hidden = true;
+    embers.start();
+  }
+  $('continue').addEventListener('click', showReader);
+
+  // ---------- 불씨 (떠오르는 불티) ----------
+  const embers = (() => {
+    const cv = $('embers'), c = cv.getContext('2d');
+    let parts = [], raf = 0, w = 0, h = 0, dpr = 1, last = 0;
+    function size() {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = cv.clientWidth; h = cv.clientHeight;
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function spawn(initial) {
+      const hot = Math.random() < 0.25;
+      return { x: Math.random() * w, y: initial ? Math.random() * h : h + 10, r: hot ? 1.2 + Math.random() * 1.6 : 0.6 + Math.random() * 1.1,
+               vy: 18 + Math.random() * 46, sway: 8 + Math.random() * 22, ph: Math.random() * 6.28, life: 0, max: 4 + Math.random() * 6, hot };
+    }
+    function frame(t) {
+      const dt = Math.min(0.05, (t - (last || t)) / 1000); last = t;
+      c.clearRect(0, 0, w, h);
+      c.globalCompositeOperation = 'lighter';
+      for (const p of parts) {
+        p.life += dt; p.y -= p.vy * dt; p.x += Math.sin(p.ph + p.life * 1.6) * p.sway * dt;
+        const k = Math.max(0, 1 - p.life / p.max) * Math.min(1, p.life * 2);
+        const g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
+        g.addColorStop(0, p.hot ? `rgba(255,214,140,${0.95 * k})` : `rgba(255,150,70,${0.8 * k})`);
+        g.addColorStop(0.35, `rgba(242,106,33,${0.45 * k})`);
+        g.addColorStop(1, 'rgba(227,20,31,0)');
+        c.fillStyle = g; c.beginPath(); c.arc(p.x, p.y, p.r * 6, 0, 6.283); c.fill();
+      }
+      parts = parts.map((p) => (p.life > p.max || p.y < -20 ? spawn(false) : p));
+      raf = requestAnimationFrame(frame);
+    }
+    return {
+      start() {
+        if (reduceMotion || raf) return;
+        size(); last = 0;
+        const n = Math.round(Math.min(70, Math.max(28, w * h / 9000)));
+        parts = Array.from({ length: n }, () => spawn(true));
+        raf = requestAnimationFrame(frame);
+      },
+      stop() { cancelAnimationFrame(raf); raf = 0; c.clearRect(0, 0, w, h); },
+      resize() { if (raf) size(); },
+    };
+  })();
+  window.addEventListener('resize', () => embers.resize());
+  embers.start();
+})();
+</script>
+</body>
+</html>
