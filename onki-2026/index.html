@@ -186,7 +186,9 @@
 
   /* ---------- 흐르는 페이지(과장 · 단체 소개): 넘치면 다음 쪽으로 ---------- */
   .flow .photo { margin-top: 14px; }
-  .flow .photo img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .flow .photo img { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .flow .emblem { margin-top: 16px; display: grid; place-items: center; }
+  .flow .emblem img { width: 46%; display: block; }
   .flow .ttl { margin-top: 14px; display: flex; align-items: baseline; gap: 8px; }
   .flow .ttl .no { font-family: var(--f-display); font-size: 12px; color: var(--red); }
   .flow .ttl h2 { font-size: 22px; }
@@ -203,7 +205,7 @@
   .program ol { margin-top: 14px; list-style: none; display: grid; border-top: 2px solid var(--ink); }
   .program li button { width: 100%; display: grid; grid-template-columns: 44px 52px 1fr auto; align-items: center; gap: 10px; padding: 7px 0; border: 0; border-bottom: 1px solid var(--rule); background: none; text-align: left; cursor: pointer; }
   .program li .no { font-family: var(--f-display); font-size: 11px; color: var(--red); }
-  .program li img { width: 52px; height: 36px; object-fit: cover; border-radius: 6px; display: block; }
+  .program li img { width: 52px; height: 36px; object-fit: contain; background: #141110; border-radius: 6px; display: block; }
   .program li b { font-size: 13px; font-weight: 700; }
   .program li .p { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .program .music { margin-top: 14px; padding: 10px 12px; background: #f1ebe2; border-radius: 10px; }
@@ -305,22 +307,22 @@
 
   // ================= 내용 =================
   const SECTIONS = [ // 포스터에 실린 순서
-    { key: 'saja', title: '사자춤', img: 'img/acts/saja.jpg', body: [
+    { key: 'saja', title: '사자춤', img: 'img/acts/saja.jpg', w: 1031, h: 687, body: [
       ['p', '잡귀를 쫓는 의식무로 쌍(흰)사자가 등장하여 힘차고 웅장한 춤을 춘다.'],
       ['p', '사자춤을 추기 위해서는 기마자세와 굴신을 최대로 사용하며 허리를 이용한 상체운동으로 역동적인 사위를 해야 한다. 입장무, 머리채기, 이잡기, 옆으로 뛰기, 사선뛰기, 입사자, 용트림 등 격렬함과 동시에 사지의 근육과 세포가 함께 어우러지는 역동적인 사위이다.'],
       ['p', '원숭이춤은 만(卍)의 형상을 표현하는 외발사위나 나비춤 동작과 게걸음사위, 이잡는 사위 같은 원숭이 흉내로 관객과의 호흡과 재미를 더한다.'],
       ['cast', [['마부', '옥용준 · 이우순 · 박선미'], ['사자', '최지욱 · 김나람 · 김상훈 · 김돈수'], ['원숭이', '김선월 · 최우빈']]]] },
-    { key: 'sangjwa', title: '상좌춤', img: 'img/acts/sangjwa.jpg', body: [
+    { key: 'sangjwa', title: '상좌춤', img: 'img/acts/sangjwa.jpg', w: 1082, h: 719, body: [
       ['p', '상좌는 ‘동자승’을 의미한다. 동자승은 어린 애를 뜻하는 게 아니라, 주지가 다음 주지를 위해 키우던 승이 동자승이다. 스승의 대를 이을 여러 중 가운데서 가장 높은 사람이 상좌이다.'],
       ['p', '상좌춤은 동 · 서 · 남 · 북 · 중앙 오방의 신들에게 빌어 잡귀를 몰아내어 탈판을 정화하는 역할을 맡고 있다. 상좌춤은 정제된 춤으로 종교적인 의식이 많다. 또한 잡귀를 쫓고 재앙을 물리치는 벽사의식무이다.'],
       ['p', '상좌춤은 힘찬 다른 춤에 비교하면 정적이면서도 매우 섬세하다. 깊은 호흡을 해야만 제대로 춤을 출 수 있다.'],
       ['cast', [['4상좌', '이혜경 · 김미숙 · 고미선 · 조은성']]]] },
-    { key: 'malttugi', title: '말뚝이춤', img: 'img/acts/malttugi.jpg', body: [
+    { key: 'malttugi', title: '말뚝이춤', img: 'img/acts/malttugi.jpg', w: 1214, h: 721, body: [
       ['p', '1982년까지는 강령탈춤의 기본무는 ‘말뚝이춤’이었다. 1981년에 월남한 탈춤 연희자들을 만나 고증 및 채보로 춤사위를 다시 정리하게 되었고, 1982년에 새로운 열정으로 뭉친 젊은 이수자 · 전수자들이 전승을 목적으로 만든 것이 현재 우리가 추고 있는 ‘기본무’이다.'],
       ['p', '강령탈춤의 말뚝이춤은 타 탈춤이 부러워하는 춤이다. 춤사위가 활달하고 다이나믹하여 연희자의 기량이 특출나지 않으면 추기 힘든 춤이다. 예전에는 곤장으로 바닥을 탁탁 치며 원을 돌았던 사위도 있었고, 죄인을 때리는 동작이 있었다. 또 양팔로 잡은 곤장을 한발로 뛰어넘고, 반대로 뛰어 넘어오는 동작도 있었다.'],
       ['p', '어른들의 말씀 중에 유독 “말뚝이춤은 나비 날 듯 추었다.”라고 표현하였다.'],
       ['cast', [['곤장말뚝이', '강경록 · 임현성'], ['채찍말뚝이', '최지욱 · 김돈수']]]] },
-    { key: 'noseung', title: '노승 · 취발이춤', img: 'img/acts/noseung.jpg', body: [
+    { key: 'noseung', title: '노승 · 취발이춤', img: 'img/acts/noseung.jpg', w: 1101, h: 734, body: [
       ['h', '제1경 : 팔목중놀이'],
       ['p', '목중 8명이 등장하여 백구타령을 부르고 춤을 추며 노승의 환속을 야유하며, 풍류정에 가자 꼬여 소무가 있는 장소로 데려다 준다.'],
       ['h', '제2경 : 노승춤'],
@@ -328,24 +330,24 @@
       ['h', '제3경 : 취발이춤'],
       ['p', '노승은 당시의 고등 종교인의 타락과 파계, 민중의 현실과는 먼 관념적인 내세중심의 사상을 내포하며, 취발이는 민중의 사상으로 기존 질서와 체재에 대한 타파, 새로운 현실의 도래를 의미하며, 삶의 중요성과 서민생활의 활력을 상징적으로 표현한 인물이다.'],
       ['cast', [['팔목중놀이', '박찬석 · 박정은 · 최우빈 · 김무겸 · 고다현 · 조해온 · 김유겸'], ['취발이', '강경록'], ['노승', '옥용준'], ['노승상좌', '이혜경 · 김미숙'], ['소무', '조은성']]]] },
-    { key: 'yangban', title: '양반 · 말뚝이춤', img: 'img/acts/yangban.jpg', body: [
+    { key: 'yangban', title: '양반 · 말뚝이춤', img: 'img/acts/yangban.jpg', w: 1078, h: 720, body: [
       ['p', '탈춤하면 누구나 떠올리는 과장은 종놈 말뚝이가 양반을 조롱하는 내용의 양반 · 말뚝이 과장일 것이다. 강령탈춤의 양반 · 말뚝이 과장은 말뚝이 2인이 등장하는 것이 특색이다. 특히 양반들이 말뚝이를 부를 때 말뚝이가 좌우로 번갈아 후닥닥 뛰어 들어와 양반을 한 명씩 후려갈기는 장면은 관객들의 폭소를 자아낸다.'],
       ['p', '그리고 또 다른 특색으로는 다른 탈춤에 비해 재담이 재미없을 정도로 유순하다는 것이다. 말뚝이의 재담에서조차 상소리나 욕설이 나오지 않는다. 하지만 상황에 따른 연희자들의 즉흥적 마임과 대사는 관객들로 하여금 예기치 않은 재미를 느끼게 해준다.'],
       ['cast', [['맏양반', '홍상진'], ['둘째양반', '정재일'], ['재물대감', '고미선'], ['도령', '최우빈']]]] },
-    { key: 'mokjung', title: '목중춤', img: 'img/acts/mokjung.jpg', body: [
+    { key: 'mokjung', title: '목중춤', img: 'img/acts/mokjung.jpg', w: 1071, h: 712, body: [
       ['p', '목중춤은 목중이 차례로 나와 춤을 즐기는 장면으로 구운몽의 성진이의 타락을 연상케 한다. 육관대사의 제자 성진이가 심부름차 용왕에게 갔다가 술을 얻어 마시고 돌아오는 길에 돌다리 위에서 팔선녀와 수작하게 되고 그로 인하여 온갖 수난을 겪는 과정을 그린 과장으로, 속세를 떠난 중이 세속적으로 타락 비유된다.'],
       ['p', '‘중 나려온다(중모리장단)’ 노래가 다음에 나타날 노장의 등장을 예고하며, 칡베장삼을 휘감아 넘기는 춤사위는 부드러우면서도 섬세함을 바탕으로 다양한 표현력을 보이며 파계승의 해학과 풍자를 나타낸 춤이다.'],
       ['cast', [['목중1', '최지욱'], ['목중2', '조영석']]]] },
-    { key: 'miyal', title: '미얄영감 · 할미춤', img: 'img/acts/miyal.jpg', body: [
+    { key: 'miyal', title: '미얄영감 · 할미춤', img: 'img/acts/miyal.jpg', w: 1010, h: 672, body: [
       ['p', '할미의 춤은 엉덩이춤이라 경박스러우나 탈춤에서의 풍자와 과장스런 표현으로 맛을 빛낸다. 영감의 춤은 장삼춤의 장엄함과 개 망나니같은 동작과 말투의 표현이 나와야 한다. 극 내용은 슬프지만 춤과 재담과 소리가 재미나게 이어져야 한다.'],
       ['p', '극중에서 할미는 자식들은 모두 죽고 영감과 첩(용산삼개집)한테 괄시당하고 결국은 물에 빠져 죽는다. 할미의 죽음을 애도하는 진오귀굿은 황해도 굿의 백미라고 할 수 있다.'],
       ['cast', [['미얄영감', '이우순'], ['미얄할미', '강미화'], ['용산삼개집', '박선미']]]] },
-    { key: 'palmok', title: '팔목춤', img: 'img/acts/palmok.jpg', body: [
+    { key: 'palmok', title: '팔목춤', img: 'img/acts/palmok.jpg', w: 1260, h: 838, body: [
       ['p', '팔목이 등장하여 자신의 기량과 묘기를 뽐내는 과장으로 최고의 재주를 겨루는 과장으로 각자의 허튼춤과 재담으로 엮어진다. 또한 허튼춤의 기량은 자신의 모든 재주를 펼치는 것이고, 재담은 틀에 박힌 문구가 아닌 상황과 행동에 따른 즉흥적인 대사로서 이것이 타 탈춤과는 다른 연희자의 몫이다.'],
       ['p', '팔목춤은 타령장단에 추어지는 춤이다. 타령이란 장단은 듣는 이에게 신명감을 주는 장단으로, 춤을 추는 이는 활달함을 넘어 격렬한 춤사위를 통해 통쾌한 멋을 불러일으키는 춤이다. 격렬한 움직임 속에는 정적임이 있어야 하고, 느린듯하면서도 그 내면은 번개치듯한 빠름이 담겨 있어야 한다. 하여 현재 춤추는 사위와는 법식이 다른 차이를 갖고 있다.'],
       ['cast', [['팔목', '강경록 · 임현성 · 정재일 · 김상훈 · 김나람 · 최지욱 · 김민준 · 조영석']]]] },
   ];
-  const GROUP = { key: 'group', title: '강령탈춤연구회', eyebrow: 'ABOUT', img: 'img/group.jpg', body: [
+  const GROUP = { key: 'group', title: '강령탈춤연구회', eyebrow: 'ABOUT', emblem: 'img/mask.png', body: [
     ['p', '강령탈춤연구회는 국가무형유산 강령탈춤의 원형보존 및 전승, 보급선양에 그 목적을 두며 바른 문사(文士)의 도(道)로 아름다운 전통을 만들고 전통 예술의 멋과 다양성을 창작하고 창의하는 곳이다. 이를 통해 사람을 위하고, 사랑하며 존중하는 ‘사람’의 공간을 만들어가고 있다.'],
     ['p', '1995년 설립된 강령탈춤연구회는 전통예술의 저변확대와 계승, 발전을 위해 설립 아래 현재까지 활발한 활동을 이어오고 있다. 매해 정기공연과 초청공연 및 탈 제작, 전통문화 체험 그리고 연희자들의 다양한 활동을 통해 문화발전에 기여하고 있으며, 국내뿐만 아니라 세계인들에게 공감대를 형성할 수 있는 대중문화로 이끌어 가고자 젊은 연희자들을 필두로 동시대 전통창작에 힘을 쏟고 있다.'],
     ['note', '인스타그램 K_MASK_DANCE']] };
@@ -369,7 +371,8 @@
     const out = [];
     const start = (first) => {
       const pg = el(`<section class="page flow" aria-label="${sec.title}">${run()}
-        ${first ? `<div class="photo"><img src="${sec.img}" alt="${sec.title} 공연 사진" draggable="false"></div>` : ''}
+        ${first && sec.img ? `<div class="photo"><img src="${sec.img}" alt="${sec.title} 공연 사진" style="aspect-ratio:${sec.w} / ${sec.h}" draggable="false"></div>` : ''}
+        ${first && sec.emblem ? `<div class="emblem"><img src="${sec.emblem}" alt="" draggable="false"></div>` : ''}
         <div class="ttl${first ? '' : ' cont'}">${first && no ? `<span class="no">제${no}과장</span>` : ''}${!first ? '' : sec.eyebrow ? `<span class="no">${sec.eyebrow}</span>` : ''}<h2>${sec.title}${first ? '' : ' (이어서)'}</h2></div>
         <div class="body"></div><p class="folio">00</p></section>`);
       measure.replaceChildren(pg); return pg;
