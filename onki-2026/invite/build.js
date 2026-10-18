@@ -76,8 +76,7 @@ const OUT = __dirname, F = path.resolve(__dirname, '../node_modules/@fontsource'
   <a class="go" href="${URL_BOOK}">
     <span class="qrbox">${qr}</span>
     <span><b>프로그램북 <span class="fire">열기</span></b>
-      <p>QR을 누르거나 휴대폰 카메라로 찍으면 과장 소개와 출연진이 담긴 프로그램북이 열립니다.</p>
-      <p class="url">thehanfilm-code.github.io/<wbr><span style="white-space:nowrap">panorama-viewer/onki-2026/</span></p></span>
+      <p>QR을 누르거나 휴대폰 카메라로 찍으면 과장 소개와 출연진이 담긴 프로그램북이 열립니다.</p></span>
   </a>
   <p class="foot"><b>주최</b> 강령탈춤연구회 · <b>주관</b> 우리문화전문연희단체 꾼 · 전통연희놀이연구소 · 탈무브먼트 · 예움회</p>
 </article>

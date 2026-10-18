@@ -153,7 +153,7 @@
   .acts li b { font-size: 14px; font-weight: 700; }
   .acts .note { margin-top: 12px; font-size: 11px; line-height: 1.7; color: var(--muted); word-break: keep-all; }
   .credits dl { margin-top: 16px; display: grid; gap: 0; border-top: 2px solid var(--ink); }
-  .credits dl div { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; line-height: 1.6; }
+  .credits dl div { display: grid; grid-template-columns: 86px 1fr; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; line-height: 1.6; }
   .credits dt { color: var(--muted); font-size: 11px; padding-top: 1px; }
   .credits dd { font-weight: 500; word-break: keep-all; }
 
@@ -368,7 +368,7 @@
     ['note', '인스타그램 K_MASK_DANCE']] };
   const MUSIC = [['장구', '윤준석'], ['쇠', '이우순 · 조영석'], ['북', '김영란'], ['징', '김미숙 · 옥용준'], ['피리', '서정진 · 오강식']];
   const STAFF = [['총감독', '윤준석'], ['연출 및 지도', '이혜경 · 옥용준 · 이우순'], ['기획', '김상훈 · 강경록'], ['홍보', '조은성 · 박선미'], ['의상', '김미숙 · 고미선'], ['소도구', '정재일'],
-                 ['사회', '조은성'], ['무대감독', '이태심'], ['무대스텝', '최영훈'], ['초대장', '한성근'], ['사진', '정봉채 · 정재호'], ['음향', '박현지']];
+                 ['사회', '조은성'], ['무대감독', '이태심'], ['무대스텝', '최영훈'], ['모바일 초대장', '한성근'], ['사진', '정봉채 · 정재호'], ['음향', '박현지']];
   const PEOPLE = [{"img":"people/01.jpg","name":"윤준석","titles":["국가무형유산","강령탈춤 이수자","강령탈춤연구회 대표"]},{"img":"people/02.jpg","name":"이혜경","titles":["국가무형유산","강령탈춤 이수자","강령탈춤연구회 부대표"]},{"img":"people/03.jpg","name":"옥용준","titles":["국가무형유산","강령탈춤 전승교육사","강령탈춤 지도"]},{"img":"people/04.jpg","name":"김미숙","titles":["국가무형유산","강령탈춤ㆍ종묘제례악 이수자"]},{"img":"people/05.jpg","name":"서정진","titles":["국가무형유산","강령탈춤 이수자"]},{"img":"people/06.jpg","name":"이우순","titles":["국가무형유산","강령탈춤 전수자"]},{"img":"people/07.jpg","name":"조영석","titles":["우리문화연희단 꾼 대표"]},{"img":"people/08.jpg","name":"정재일","titles":["(사)전통연희놀이연구소 대표"]},{"img":"people/09.jpg","name":"고미선","titles":[]},{"img":"people/10.jpg","name":"김상훈","titles":["강령탈춤연구회 예인회장"]},{"img":"people/11.jpg","name":"강경록","titles":[]},{"img":"people/12.jpg","name":"조은성","titles":["탈무브먼트 대표"]},{"img":"people/13.jpg","name":"박선미","titles":[]},{"img":"people/14.jpg","name":"홍상진","titles":[]},{"img":"people/15.jpg","name":"임현성","titles":[]},{"img":"people/16.jpg","name":"최지욱","titles":[]},{"img":"people/17.jpg","name":"오강식","titles":[]},{"img":"people/18.jpg","name":"강미화","titles":[]},{"img":"people/19.jpg","name":"김돈수","titles":[]},{"img":"people/20.jpg","name":"김나람","titles":[]},{"img":"people/21.jpg","name":"김선월","titles":[]},{"img":"people/22.jpg","name":"김민준","titles":[]},{"img":"people/23.jpg","name":"김영란","titles":[]},{"img":"people/24.jpg","name":"박찬석","titles":[]},{"img":"people/25.jpg","name":"박정은","titles":[]},{"img":"people/26.jpg","name":"최우빈","titles":[]},{"img":"people/27.jpg","name":"김무겸","titles":[]},{"img":"people/28.jpg","name":"고다현","titles":[]},{"img":"people/29.jpg","name":"조해온","titles":[]},{"img":"people/30.jpg","name":"김유겸","titles":[]}];
 
   const run = () => `<p class="run"><span>온기 : <b>불씨</b>를 품다</span><span>국가무형유산 강령탈춤</span></p>`;
@@ -504,7 +504,6 @@
         <h3>이 <span class="fire">불씨</span>를 건네주세요</h3>
         <div class="qrbox">${QR_SVG}</div>
         <p>휴대폰 카메라로 QR을 찍으면<br>이 프로그램북이 열립니다.</p>
-        <p class="url">${BOOK_URL.replace('https://', '')}</p>
         <div class="acts">
           <button type="button" class="solid" data-copy>링크 복사</button>
           <button type="button" data-goto="0">처음으로</button>
