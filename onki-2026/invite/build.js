@@ -43,7 +43,10 @@ const OUT = __dirname, F = path.resolve(__dirname, '../node_modules/@fontsource'
   .mt-onki { font-family: var(--f-display); font-size: 52pt; line-height: .92; letter-spacing: -0.02em;
     background: linear-gradient(180deg, #ffe0a3 0%, #f6b23c 28%, #f26a21 60%, #e3141f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 0 2.5mm rgba(242,106,33,.5)); }
-  .mt-on { margin-top: 1.2mm; font-weight: 900; font-size: 6.5pt; letter-spacing: .55em; padding-left: .55em; color: var(--gold); }
+  .mt-lock { display: flex; align-items: center; gap: 1.6mm; }
+  .mt-han { display: grid; justify-items: center; line-height: 1; font-size: 21pt; color: #f7941d; filter: drop-shadow(0 0 1.2mm rgba(242,106,33,.45)); }
+  .mt-han span { font-family: var(--f-display); }
+  .mt-han .han { font-family: var(--f-sans); font-weight: 900; font-size: 1.04em; margin-top: .4mm; }
   .mt-sub { margin-top: 1.4mm; font-family: var(--f-display); font-size: 15pt; }
   .mt-sub .fire { color: var(--red); text-shadow: 0 0 2mm rgba(227,20,31,.5); }
   .when { position: relative; margin-top: 3mm; display: grid; gap: .8mm; }
@@ -74,7 +77,7 @@ const OUT = __dirname, F = path.resolve(__dirname, '../node_modules/@fontsource'
   <img class="mask" src="mask-dark.png" alt="강령탈춤 탈 그림">
   <img class="logo" src="logo-dark.png" alt="강령탈춤연구회 中天舞">
   <p class="band">국가무형유산 강령탈춤 <span>2026년 정기공연</span></p>
-  <div class="mt"><p class="mt-onki">온기</p><p class="mt-on">ON 氣</p><p class="mt-sub"><span class="fire">불씨</span>를 품다</p></div>
+  <div class="mt"><div class="mt-lock"><p class="mt-onki">온기</p><p class="mt-han"><span>ON</span><span class="han">氣</span></p></div><p class="mt-sub"><span class="fire">불씨</span>를 품다</p></div>
   <div class="when">
     <p class="date">2026년 11월 14일(토) 오후 2시</p>
     <p class="venue">민속극장 풍류</p>
@@ -97,7 +100,7 @@ const OUT = __dirname, F = path.resolve(__dirname, '../node_modules/@fontsource'
   const p = await ctx.newPage();
   await p.route('https://fonts.googleapis.com/**', (r) => r.fulfill({ status: 200, contentType: 'text/css', body: '' }));
   await p.goto('file://' + path.join(OUT, 'index.html'));
-  for (const f of ['black-han-sans/korean-400.css', 'black-han-sans/latin-400.css', 'noto-sans-kr/korean-400.css', 'noto-sans-kr/korean-500.css', 'noto-sans-kr/korean-700.css', 'noto-sans-kr/korean-900.css', 'noto-sans-kr/latin-400.css', 'noto-sans-kr/latin-500.css', 'noto-sans-kr/latin-700.css', 'noto-sans-kr/latin-900.css'])
+  for (const f of ['black-han-sans/korean-400.css', 'black-han-sans/latin-400.css', 'noto-sans-kr/korean-400.css', 'noto-sans-kr/korean-500.css', 'noto-sans-kr/korean-700.css', 'noto-sans-kr/korean-900.css', 'noto-sans-kr/latin-400.css', 'noto-sans-kr/latin-500.css', 'noto-sans-kr/latin-700.css', 'noto-sans-kr/latin-900.css', 'noto-sans-kr/900.css'])
     await p.addStyleTag({ url: 'file://' + path.join(F, f) });
   await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(300);
   const over = await p.evaluate(() => { const c = document.querySelector('.card'); return c.scrollHeight - c.clientHeight; });

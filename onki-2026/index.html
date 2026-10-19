@@ -270,7 +270,13 @@
   .onki-main { font-family: var(--f-display); font-weight: 400; font-size: clamp(92px, 30vw, 168px); line-height: .92; letter-spacing: -0.02em;
     background: linear-gradient(180deg, #ffe0a3 0%, #f6b23c 28%, #f26a21 60%, #e3141f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 0 22px rgba(242,106,33,.5)) drop-shadow(0 0 60px rgba(227,20,31,.25)); }
-  .onki-on { margin-top: 8px; font-weight: 900; font-size: 13px; letter-spacing: .6em; padding-left: .6em; color: var(--gold); }
+  /* 포스터처럼 '온기' 옆에 ON / 氣를 세로로 붙인 한 덩어리 */
+  .onki-lock, .cover .c-lock { display: flex; align-items: center; gap: .1em; font-size: clamp(92px, 30vw, 168px); }
+  .cover .c-lock { font-size: clamp(68px, 22vw, 104px); }
+  .onki-lock .onki-main, .cover .c-lock .c-onki { font-size: 1em; }
+  .onki-han { display: grid; justify-items: center; font-size: .4em; line-height: 1; color: #f7941d; filter: drop-shadow(0 0 .25em rgba(242,106,33,.45)); }
+  .onki-han span { font-family: var(--f-display); letter-spacing: -0.01em; }
+  .onki-han .han { font-family: var(--f-sans); font-weight: 900; font-size: 1.04em; margin-top: .06em; }
   .onki-sub { margin-top: 10px; font-family: var(--f-display); font-size: clamp(24px, 7.6vw, 34px); line-height: 1.1; color: var(--on-dark); }
   .onki-sub .fire, .c-sub .fire { color: var(--red); text-shadow: 0 0 14px rgba(227,20,31,.5); }
   .reader-top .who b { color: var(--ember); font-size: 17px; font-weight: 400; }
@@ -280,7 +286,6 @@
   .cover .c-onki { font-family: var(--f-display); font-size: clamp(68px, 22vw, 104px); line-height: .92; letter-spacing: -0.02em;
     background: linear-gradient(180deg, #ffe0a3 0%, #f6b23c 28%, #f26a21 60%, #e3141f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 0 16px rgba(242,106,33,.5)); }
-  .cover .c-on { margin-top: 6px; font-weight: 900; font-size: 11px; letter-spacing: .55em; padding-left: .55em; color: var(--gold); }
   .cover .c-sub { margin-top: 8px; font-family: var(--f-display); font-size: clamp(20px, 6vw, 28px); color: var(--on-dark); }
   @media (prefers-reduced-motion: reduce) {
     .rise, .ignite { animation: none; opacity: 1; transform: none; filter: none; }
@@ -298,8 +303,7 @@
     <img class="logo rise d2" src="img/logo-dark.png" alt="강령탈춤연구회 中天舞">
     <p class="band rise d3">국가무형유산 강령탈춤 <span>2026년 정기공연</span></p>
     <div class="maintitle rise d4">
-      <h1 class="onki-main">온기</h1>
-      <p class="onki-on">ON 氣</p>
+      <div class="onki-lock"><h1 class="onki-main">온기</h1><p class="onki-han" aria-label="ON 氣"><span>ON</span><span class="han">氣</span></p></div>
       <p class="onki-sub"><span class="fire">불씨</span>를 품다</p>
     </div>
     <div class="when rise d5">
@@ -479,7 +483,7 @@
         <div class="cmask"><img src="img/mask-dark.png" alt="" draggable="false"></div>
         <img class="clogo" src="img/logo-dark.png" alt="강령탈춤연구회 中天舞" draggable="false">
         <p class="cband">국가무형유산 강령탈춤 2026년 정기공연</p>
-        <div class="ctitle2"><p class="c-onki">온기</p><p class="c-on">ON 氣</p><p class="c-sub"><span class="fire">불씨</span>를 품다</p></div>
+        <div class="ctitle2"><div class="c-lock"><p class="c-onki">온기</p><p class="onki-han" aria-label="ON 氣"><span>ON</span><span class="han">氣</span></p></div><p class="c-sub"><span class="fire">불씨</span>를 품다</p></div>
         <p class="cfoot"><b>2026. 11. 14 (토) 오후 2시</b><br>민속극장 풍류</p></div></section>`), '표지', 'cover');
     add(null, '목차', 'contents'); // 마지막에 채움
     addAll(flow({ cls: 'greeting', label: '인사말', bodyCls: 'lede',
