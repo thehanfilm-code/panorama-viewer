@@ -20,7 +20,7 @@
   .card { position: relative; width: 100mm; height: 150mm; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center;
           background: radial-gradient(120% 60% at 50% 22%, #3a170b 0%, #1a110d 40%, var(--stage) 72%); }
   .embers { position: absolute; inset: 0; pointer-events: none; }
-  .mask { position: relative; width: 54mm; margin-top: -3mm; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24%); mask-image: linear-gradient(to bottom, transparent 0, #000 24%); filter: drop-shadow(0 0 6mm rgba(242,106,33,.35)); }
+  .mask { position: relative; width: 46mm; margin-top: -3mm; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24%); mask-image: linear-gradient(to bottom, transparent 0, #000 24%); filter: drop-shadow(0 0 6mm rgba(242,106,33,.35)); }
   .logo { position: relative; width: 64mm; margin-top: .5mm; filter: drop-shadow(0 0 2mm rgba(242,106,33,.35)); }
   .band { position: relative; width: 100%; margin-top: 3.2mm; padding-block: 1.6mm; background: #000; font-size: 7.4pt; font-weight: 700; letter-spacing: .02em; }
   .band span { color: var(--muted); font-weight: 500; margin-left: 2mm; }
@@ -30,7 +30,14 @@
   .title .big { font-size: 34pt; letter-spacing: -0.01em; }
   .title .fire { color: var(--red); text-shadow: 0 0 3mm rgba(227,20,31,.55); }
   .title .eul { font-size: .45em; vertical-align: .8em; }
-  .when { position: relative; margin-top: 3.4mm; display: grid; gap: .8mm; }
+  .mt { position: relative; margin-top: 3mm; display: grid; justify-items: center; line-height: 1; }
+  .mt-onki { font-family: var(--f-display); font-size: 52pt; line-height: .92; letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffe0a3 0%, #f6b23c 28%, #f26a21 60%, #e3141f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 2.5mm rgba(242,106,33,.5)); }
+  .mt-on { margin-top: 1.2mm; font-weight: 900; font-size: 6.5pt; letter-spacing: .55em; padding-left: .55em; color: var(--gold); }
+  .mt-sub { margin-top: 1.4mm; font-family: var(--f-display); font-size: 15pt; }
+  .mt-sub .fire { color: var(--red); text-shadow: 0 0 2mm rgba(227,20,31,.5); }
+  .when { position: relative; margin-top: 3mm; display: grid; gap: .8mm; }
   .when .date { font-family: var(--f-display); font-size: 13pt; color: var(--gold); }
   .when .venue { font-family: var(--f-display); font-size: 17pt; }
   .when .addr { font-size: 6pt; color: var(--muted); }
@@ -52,7 +59,7 @@
   <img class="mask" src="mask-dark.png" alt="강령탈춤 탈 그림">
   <img class="logo" src="logo-dark.png" alt="강령탈춤연구회 中天舞">
   <p class="band">국가무형유산 강령탈춤 <span>2026년 정기공연</span></p>
-  <p class="title"><span class="onki">온기<small>ON 氣</small></span><span class="big"><span class="fire">불씨</span><span class="eul">를</span> 품다</span></p>
+  <div class="mt"><p class="mt-onki">온기</p><p class="mt-on">ON 氣</p><p class="mt-sub"><span class="fire">불씨</span>를 품다</p></div>
   <div class="when">
     <p class="date">2026년 11월 14일(토) 오후 2시</p>
     <p class="venue">민속극장 풍류</p>

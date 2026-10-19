@@ -12,8 +12,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Nanum+Brush+Script&display=swap">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  [hidden] { display: none !important; }
   /* Layout: 어두운 무대. 첫 화면은 불씨가 피어오르며 탈과 제목이 켜지는 '막 오름',
      Continue 후에는 검은 무대 위 한 장짜리 책(흰 종이)을 모서리째 넘긴다.
      포스터의 빨강·주황·검정·남색을 그대로 쓰는 단일 다크 테마. */
@@ -266,6 +264,24 @@
   .together h3 .fire { color: var(--red); }
   .together p { font-size: 11.5px; color: var(--on-dark-muted); line-height: 1.7; word-break: keep-all; }
   #measure { position: fixed; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }
+
+  /* ---------- 메인 타이틀 '온기' ---------- */
+  .maintitle { margin-top: 18px; display: grid; justify-items: center; }
+  .onki-main { font-family: var(--f-display); font-weight: 400; font-size: clamp(92px, 30vw, 168px); line-height: .92; letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffe0a3 0%, #f6b23c 28%, #f26a21 60%, #e3141f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 22px rgba(242,106,33,.5)) drop-shadow(0 0 60px rgba(227,20,31,.25)); }
+  .onki-on { margin-top: 8px; font-weight: 900; font-size: 13px; letter-spacing: .6em; padding-left: .6em; color: var(--gold); }
+  .onki-sub { margin-top: 10px; font-family: var(--f-display); font-size: clamp(24px, 7.6vw, 34px); line-height: 1.1; color: var(--on-dark); }
+  .onki-sub .fire, .c-sub .fire { color: var(--red); text-shadow: 0 0 14px rgba(227,20,31,.5); }
+  .reader-top .who b { color: var(--ember); font-size: 17px; font-weight: 400; }
+  .reader-top .who small { font-size: 12px; color: var(--on-dark-muted); font-family: var(--f-sans); font-weight: 500; }
+  .run b { color: var(--ember) !important; }
+  .cover .ctitle2 { margin-top: 6%; display: grid; justify-items: center; line-height: 1; }
+  .cover .c-onki { font-family: var(--f-display); font-size: clamp(68px, 22vw, 104px); line-height: .92; letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffe0a3 0%, #f6b23c 28%, #f26a21 60%, #e3141f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 16px rgba(242,106,33,.5)); }
+  .cover .c-on { margin-top: 6px; font-weight: 900; font-size: 11px; letter-spacing: .55em; padding-left: .55em; color: var(--gold); }
+  .cover .c-sub { margin-top: 8px; font-family: var(--f-display); font-size: clamp(20px, 6vw, 28px); color: var(--on-dark); }
   @media (prefers-reduced-motion: reduce) {
     .rise, .ignite { animation: none; opacity: 1; transform: none; filter: none; }
     .mask-wrap::before, .open-btn { animation: none; }
@@ -274,15 +290,17 @@
 </style>
 </head>
 <body>
+
 <section class="opening" id="intro" aria-label="온기 : 불씨를 품다">
   <canvas id="embers" aria-hidden="true"></canvas>
   <div class="op-inner">
     <div class="mask-wrap ignite"><img src="img/mask-dark.png" alt="강령탈춤 사자탈을 닮은 붉은 탈 그림"></div>
     <img class="logo rise d2" src="img/logo-dark.png" alt="강령탈춤연구회 中天舞">
     <p class="band rise d3">국가무형유산 강령탈춤 <span>2026년 정기공연</span></p>
-    <div class="title rise d4">
-      <p class="onki">온기<small>ON 氣</small></p>
-      <h1><span class="fire">불씨</span><span class="eul">를</span><span class="pum">품다</span></h1>
+    <div class="maintitle rise d4">
+      <h1 class="onki-main">온기</h1>
+      <p class="onki-on">ON 氣</p>
+      <p class="onki-sub"><span class="fire">불씨</span>를 품다</p>
     </div>
     <div class="when rise d5">
       <p class="date">2026년 11월 14일(토) 오후 2시</p>
@@ -296,7 +314,7 @@
 
 <section class="reader" id="reader" hidden aria-label="프로그램북">
   <header class="reader-top">
-    <span class="who">온기 : <b>불씨</b>를 품다</span>
+    <span class="who"><b>온기</b> <small>: 불씨를 품다</small></span>
     <nav>
       <button class="link-btn" id="to-contents" type="button">목차</button>
       <button class="link-btn" id="to-intro" type="button">처음 화면</button>
@@ -384,7 +402,7 @@
                  ['사회', '조은성'], ['무대감독', '이태심'], ['무대스텝', '최영훈'], ['모바일 초대장', '한성근'], ['사진', '정봉채 · 정재호'], ['음향', '박현지']];
   const PEOPLE = [{"img":"people/01.jpg","name":"윤준석","titles":["국가무형유산","강령탈춤 이수자","강령탈춤연구회 대표"]},{"img":"people/02.jpg","name":"이혜경","titles":["국가무형유산","강령탈춤 이수자","강령탈춤연구회 부대표"]},{"img":"people/03.jpg","name":"옥용준","titles":["국가무형유산","강령탈춤 전승교육사","강령탈춤 지도"]},{"img":"people/04.jpg","name":"김미숙","titles":["국가무형유산","강령탈춤ㆍ종묘제례악 이수자"]},{"img":"people/05.jpg","name":"서정진","titles":["국가무형유산","강령탈춤 이수자"]},{"img":"people/06.jpg","name":"이우순","titles":["국가무형유산","강령탈춤 전수자"]},{"img":"people/07.jpg","name":"조영석","titles":["우리문화연희단 꾼 대표"]},{"img":"people/08.jpg","name":"정재일","titles":["(사)전통연희놀이연구소 대표"]},{"img":"people/09.jpg","name":"고미선","titles":[]},{"img":"people/10.jpg","name":"김상훈","titles":["강령탈춤연구회 예인회장"]},{"img":"people/11.jpg","name":"강경록","titles":[]},{"img":"people/12.jpg","name":"조은성","titles":["탈무브먼트 대표"]},{"img":"people/13.jpg","name":"박선미","titles":[]},{"img":"people/14.jpg","name":"홍상진","titles":[]},{"img":"people/15.jpg","name":"임현성","titles":[]},{"img":"people/16.jpg","name":"최지욱","titles":[]},{"img":"people/17.jpg","name":"오강식","titles":[]},{"img":"people/18.jpg","name":"강미화","titles":[]},{"img":"people/19.jpg","name":"김돈수","titles":[]},{"img":"people/20.jpg","name":"김나람","titles":[]},{"img":"people/21.jpg","name":"김선월","titles":[]},{"img":"people/22.jpg","name":"김민준","titles":[]},{"img":"people/23.jpg","name":"김영란","titles":[]},{"img":"people/24.jpg","name":"박찬석","titles":[]},{"img":"people/25.jpg","name":"박정은","titles":[]},{"img":"people/26.jpg","name":"최우빈","titles":[]},{"img":"people/27.jpg","name":"김무겸","titles":[]},{"img":"people/28.jpg","name":"고다현","titles":[]},{"img":"people/29.jpg","name":"조해온","titles":[]},{"img":"people/30.jpg","name":"김유겸","titles":[]}];
 
-  const run = () => `<p class="run"><span>온기 : <b>불씨</b>를 품다</span><span>국가무형유산 강령탈춤</span></p>`;
+  const run = () => `<p class="run"><span><b>온기</b> : 불씨를 품다</span><span>국가무형유산 강령탈춤</span></p>`;
   const castHtml = (rows) => `<dl class="cast">${rows.map(([r, n]) => `<div><dt>${r}</dt><dd>${n}</dd></div>`).join('')}</dl>`;
   const blockHtml = ([t, v]) => t === 'p' ? `<p>${v}</p>` : t === 'h' ? `<h4>${v}</h4>` : t === 'note' ? `<p class="note">${v}</p>` : castHtml(v);
 
@@ -461,7 +479,7 @@
         <div class="cmask"><img src="img/mask-dark.png" alt="" draggable="false"></div>
         <img class="clogo" src="img/logo-dark.png" alt="강령탈춤연구회 中天舞" draggable="false">
         <p class="cband">국가무형유산 강령탈춤 2026년 정기공연</p>
-        <p class="ctitle"><span class="onki">온기 ON 氣</span><span class="big"><span class="fire">불씨</span><span class="eul">를</span> 품다</span></p>
+        <div class="ctitle2"><p class="c-onki">온기</p><p class="c-on">ON 氣</p><p class="c-sub"><span class="fire">불씨</span>를 품다</p></div>
         <p class="cfoot"><b>2026. 11. 14 (토) 오후 2시</b><br>민속극장 풍류</p></div></section>`), '표지', 'cover');
     add(null, '목차', 'contents'); // 마지막에 채움
     addAll(flow({ cls: 'greeting', label: '인사말', bodyCls: 'lede',
